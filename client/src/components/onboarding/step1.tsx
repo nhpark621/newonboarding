@@ -17,8 +17,6 @@ const PREDEFINED_TAGS = [
 
 export default function Step1({ onComplete }: Step1Props) {
   const [userInput, setUserInput] = useState("");
-  const [showAutoText, setShowAutoText] = useState(false);
-  const [generatedText, setGeneratedText] = useState("");
 
   const handleInputChange = (value: string) => {
     setUserInput(value);
@@ -28,13 +26,12 @@ export default function Step1({ onComplete }: Step1Props) {
   };
 
   const handleTagClick = (tagName: string) => {
-    const autoText = `경쟁사의 ${tagName}에 대해 궁금해요. 최근 동향과 전략을 파악하고 싶습니다.`;
-    setUserInput(autoText);
-    setGeneratedText(autoText);
-    setShowAutoText(true);
+    const tagText = `경쟁사의 ${tagName}에 대해 궁금해요.`;
+    const newInput = userInput ? `${userInput} ${tagText}` : tagText;
+    setUserInput(newInput);
     
     trackEvent('tag_selected', { tag_name: tagName });
-    trackEvent('auto_text_generated', { generated_text: autoText });
+    trackEvent('auto_text_generated', { generated_text: tagText });
   };
 
   const handleNext = () => {
@@ -91,15 +88,7 @@ export default function Step1({ onComplete }: Step1Props) {
             </div>
           </div>
 
-          {/* Auto-generated text preview */}
-          {showAutoText && (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <span className="mr-2">✨</span>
-                자동 생성된 문장: {generatedText}
-              </p>
-            </div>
-          )}
+
         </div>
 
         {/* Next Button */}

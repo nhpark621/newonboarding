@@ -34,6 +34,8 @@ type FormData = z.infer<typeof formSchema>;
 
 export default function Step3({ onboardingData, onComplete }: Step3Props) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -241,17 +243,32 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                 control={form.control}
                 name="terms"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-4">
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 pt-4">
                     <FormControl>
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        className="mt-1"
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm text-muted-foreground">
-                        <span className="font-medium">서비스 이용약관</span> 및{" "}
-                        <span className="font-medium">개인정보 처리방침</span>에 동의합니다. *
+                      <FormLabel className="text-sm text-muted-foreground cursor-pointer">
+                        <button
+                          type="button"
+                          onClick={() => setShowTermsModal(true)}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          서비스 이용약관
+                        </button>{" "}
+                        및{" "}
+                        <button
+                          type="button"
+                          onClick={() => setShowPrivacyModal(true)}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          개인정보 처리방침
+                        </button>
+                        에 동의합니다.
                       </FormLabel>
                       <FormMessage />
                     </div>
@@ -304,6 +321,52 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
               <Button onClick={handleGoToDashboard} className="px-6 py-3 font-semibold">
                 대시보드 시작하기
               </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Terms of Service Modal */}
+        <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold">서비스 이용약관</DialogTitle>
+              <button
+                onClick={() => setShowTermsModal(false)}
+                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span className="sr-only">Close</span>
+              </button>
+            </DialogHeader>
+            <div className="py-6">
+              <p className="text-center text-muted-foreground">
+                서비스 이용약관은 현재 준비중입니다.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Privacy Policy Modal */}
+        <Dialog open={showPrivacyModal} onOpenChange={setShowPrivacyModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold">개인정보 처리방침</DialogTitle>
+              <button
+                onClick={() => setShowPrivacyModal(false)}
+                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span className="sr-only">Close</span>
+              </button>
+            </DialogHeader>
+            <div className="py-6">
+              <p className="text-center text-muted-foreground">
+                개인정보 처리방침은 현재 준비중입니다.
+              </p>
             </div>
           </DialogContent>
         </Dialog>

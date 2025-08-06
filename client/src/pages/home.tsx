@@ -5,6 +5,8 @@ import ProgressIndicator from "@/components/onboarding/progress-indicator";
 import Step1 from "@/components/onboarding/step1";
 import Step2 from "@/components/onboarding/step2";
 import Step3 from "@/components/onboarding/step3";
+import companyLogo from "@assets/회사로고_1754476459763.png";
+import companyIcon from "@assets/회사 아이콘_1754476465483.png";
 
 export interface OnboardingData {
   userConcern: string;
@@ -86,12 +88,16 @@ export default function Home() {
               )}
               
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
-                  </svg>
-                </div>
-                <span className="text-xl font-bold text-foreground">UNDERWATCH</span>
+                <img 
+                  src={companyIcon} 
+                  alt="UNDERWATCH Icon" 
+                  className="w-8 h-8 object-contain"
+                />
+                <img 
+                  src={companyLogo} 
+                  alt="UNDERWATCH Logo" 
+                  className="h-6 object-contain"
+                />
               </div>
             </div>
             

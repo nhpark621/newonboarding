@@ -312,13 +312,13 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               </div>
-              <DialogTitle className="text-2xl font-bold">경쟁사 분석에 필요한 모든 단계를 완료했어요!</DialogTitle>
-              <DialogDescription className="text-muted-foreground">
+              <DialogTitle className="text-xl font-bold leading-tight">경쟁사 분석에 필요한 모든 단계를 완료했어요!</DialogTitle>
+              <DialogDescription className="text-muted-foreground text-center">
                 이제 분석 결과 대시보드로 이동할게요
               </DialogDescription>
             </DialogHeader>
             <div className="text-center">
-              <Button onClick={handleGoToDashboard} className="px-6 py-3 font-semibold">
+              <Button onClick={handleGoToDashboard} className="px-6 py-3 font-semibold relative overflow-hidden bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 before:ease-out">
                 대시보드 시작하기
               </Button>
             </div>

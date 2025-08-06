@@ -14,33 +14,33 @@ interface Step2Props {
 const SERVICE_DETAILS = {
   "뉴스·보도자료 분석": {
     icon: "📰",
-    color: "from-green-500 to-green-600",
-    description: "경쟁사의 최신 뉴스를 분석해 핵심 이슈와 전략 방향을 파악할 수 있어요. 주요 기사도 함께 추천드려요."
+    color: "from-slate-600 to-slate-700",
+    description: "경쟁사의 최신 뉴스를 분석해 핵심 이슈와\n전략 방향을 파악할 수 있어요.\n주요 기사도 함께 추천드려요."
   },
   "신제품·서비스 출시": {
     icon: "🚀",
-    color: "from-blue-500 to-blue-600",
-    description: "경쟁사가 출시한 신제품과 서비스, 기능 확장 현황을 한눈에 정리해드려요. 시장 대응 흐름을 빠르게 파악할 수 있어요."
+    color: "from-blue-600 to-blue-700",
+    description: "경쟁사가 출시한 신제품과 서비스,\n기능 확장 현황을 한눈에 정리해드려요.\n시장 대응 흐름을 빠르게 파악할 수 있어요."
   },
   "인재 영입": {
     icon: "👥",
-    color: "from-purple-500 to-purple-600",
-    description: "경쟁사의 채용 공고를 모니터링해 주요 영입 분야와 전략 변화 가능성을 알려드려요. 인재 움직임으로 준비 중인 전략을 유추할 수 있어요."
+    color: "from-indigo-600 to-indigo-700",
+    description: "경쟁사의 채용 공고를 모니터링해\n주요 영입 분야와 전략 변화 가능성을 알려드려요.\n인재 움직임으로 준비 중인 전략을 유추할 수 있어요."
   },
   "광고 분석": {
     icon: "📢",
-    color: "from-orange-500 to-orange-600",
-    description: "경쟁사가 언제, 어디에, 어떤 광고를 집행했는지 확인하고, 신규 콘텐츠도 함께 분석해드려요. 광고 전략의 흐름을 쉽게 파악할 수 있어요."
+    color: "from-slate-600 to-slate-700",
+    description: "경쟁사가 언제, 어디에, 어떤 광고를 집행했는지 확인하고,\n신규 콘텐츠도 함께 분석해드려요.\n광고 전략의 흐름을 쉽게 파악할 수 있어요."
   },
   "SNS 콘텐츠": {
     icon: "#️⃣",
-    color: "from-pink-500 to-pink-600",
-    description: "경쟁사의 SNS 채널에서 어떤 콘텐츠가 올라오고, 반응은 어떤지 실시간으로 분석해드려요. 채널별 성과 비교도 가능해요."
+    color: "from-slate-500 to-slate-600",
+    description: "경쟁사의 SNS 채널에서 어떤 콘텐츠가 올라오고,\n반응은 어떤지 실시간으로 분석해드려요.\n채널별 성과 비교도 가능해요."
   },
   "이벤트 모니터링": {
     icon: "🎉",
-    color: "from-red-500 to-red-600",
-    description: "경쟁사가 진행한 프로모션, 할인, 사은품 증정 등 이벤트 현황을 정리해드려요. 혜택 구성과 타이밍까지 비교할 수 있어요."
+    color: "from-gray-600 to-gray-700",
+    description: "경쟁사가 진행한 프로모션, 할인,\n사은품 증정 등 이벤트 현황을 정리해드려요.\n혜택 구성과 타이밍까지 비교할 수 있어요."
   }
 };
 
@@ -66,10 +66,14 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
   const handleServiceToggle = (serviceName: string) => {
     if (selectedServices.includes(serviceName)) {
       setSelectedServices(prev => prev.filter(s => s !== serviceName));
-    } else {
+    } else if (selectedServices.length < 3) {
       setSelectedServices(prev => [...prev, serviceName]);
       trackEvent('card_clicked', { selected_card: serviceName });
     }
+  };
+
+  const removeService = (serviceName: string) => {
+    setSelectedServices(prev => prev.filter(s => s !== serviceName));
   };
 
   const handleNext = () => {
@@ -98,7 +102,7 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
         {/* User Input Summary */}
         <div className="bg-secondary rounded-xl p-6 mb-12">
           <div className="flex items-center">
-            <svg className="w-5 h-5 text-primary mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-6 h-6 text-primary mr-3" fill="currentColor" viewBox="0 0 20 20">
               <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" />
             </svg>
             <span className="text-sm text-muted-foreground">입력하신 관심사:</span>
@@ -128,7 +132,10 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
             {/* Recommended Services */}
             {recommendedServices.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-xl font-semibold text-foreground mb-4">추천 서비스</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-foreground">추천 서비스</h3>
+                  <span className="text-sm text-muted-foreground">체험형 경쟁사 분석 서비스에서는 최대 3개까지 선택 가능해요</span>
+                </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {recommendedServices.map((serviceName: string) => {
                     const service = SERVICE_DETAILS[serviceName as keyof typeof SERVICE_DETAILS];
@@ -137,22 +144,26 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
                     return (
                       <Card
                         key={serviceName}
-                        className={`service-card cursor-pointer border-2 transition-all ${
-                          isSelected ? 'card-selected border-primary' : 'border-border hover:border-primary/50'
+                        className={`service-card transition-all border-2 ${
+                          isSelected 
+                            ? 'card-selected border-primary cursor-pointer' 
+                            : selectedServices.length >= 3 
+                              ? 'border-border opacity-50 cursor-not-allowed' 
+                              : 'border-border hover:border-primary/50 cursor-pointer'
                         }`}
                         onClick={() => handleServiceToggle(serviceName)}
                       >
-                        <CardContent className="p-6">
+                        <CardContent className="p-6 flex flex-col h-full">
                           <div className="flex items-center mb-4">
                             <div className={`w-12 h-12 bg-gradient-to-br ${service.color} rounded-lg flex items-center justify-center mr-4`}>
                               <span className="text-white text-xl">{service.icon}</span>
                             </div>
                             <h3 className="text-xl font-semibold text-foreground">{serviceName}</h3>
                           </div>
-                          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                          <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-grow whitespace-pre-line">
                             {service.description}
                           </p>
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between items-center mt-auto">
                             <Badge variant="secondary" className="text-primary bg-primary/10">
                               추천
                             </Badge>
@@ -182,22 +193,26 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
                     return (
                       <Card
                         key={serviceName}
-                        className={`service-card cursor-pointer border-2 transition-all ${
-                          isSelected ? 'card-selected border-primary' : 'border-border hover:border-primary/50'
+                        className={`service-card transition-all border-2 ${
+                          isSelected 
+                            ? 'card-selected border-primary cursor-pointer' 
+                            : selectedServices.length >= 3 
+                              ? 'border-border opacity-50 cursor-not-allowed' 
+                              : 'border-border hover:border-primary/50 cursor-pointer'
                         }`}
                         onClick={() => handleServiceToggle(serviceName)}
                       >
-                        <CardContent className="p-6">
+                        <CardContent className="p-6 flex flex-col h-full">
                           <div className="flex items-center mb-4">
                             <div className={`w-12 h-12 bg-gradient-to-br ${service.color} rounded-lg flex items-center justify-center mr-4`}>
                               <span className="text-white text-xl">{service.icon}</span>
                             </div>
                             <h3 className="text-xl font-semibold text-foreground">{serviceName}</h3>
                           </div>
-                          <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+                          <p className="text-muted-foreground text-sm leading-relaxed mb-4 flex-grow whitespace-pre-line">
                             {service.description}
                           </p>
-                          <div className="flex justify-between items-center">
+                          <div className="flex justify-between items-center mt-auto">
                             <Badge variant="outline">
                               선택 가능
                             </Badge>
@@ -223,9 +238,17 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
             <h4 className="font-semibold text-blue-900 mb-2">선택된 분석 서비스</h4>
             <div className="flex flex-wrap gap-2">
               {selectedServices.map((service) => (
-                <Badge key={service} className="bg-primary text-primary-foreground">
-                  {service}
-                </Badge>
+                <div key={service} className="flex items-center bg-primary text-primary-foreground rounded-md px-3 py-1">
+                  <span className="text-sm font-medium">{service}</span>
+                  <button
+                    onClick={() => removeService(service)}
+                    className="ml-2 hover:bg-primary-foreground/20 rounded-full p-1 transition-colors"
+                  >
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           </div>

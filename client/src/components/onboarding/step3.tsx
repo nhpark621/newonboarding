@@ -26,7 +26,7 @@ const formSchema = z.object({
     .regex(/\d/, "숫자를 포함해주세요"),
   company: z.string().min(1, "회사명을 입력해주세요"),
   team: z.string().min(1, "팀을 선택해주세요"),
-  product: z.string().optional(),
+  product: z.string().min(1, "담당 제품/서비스를 입력해주세요"),
   terms: z.boolean().refine(val => val === true, "약관에 동의해주세요"),
 });
 
@@ -37,6 +37,7 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    mode: "onChange", // Enable real-time validation
     defaultValues: {
       email: "",
       password: "",
@@ -138,11 +139,14 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                       <div className="relative">
                         <Input
                           type="password"
-                          placeholder="8자 이상, 영문/숫자 포함"
+                          placeholder="영문 + 숫자 조합, 8자 이상"
                           {...field}
                           className={form.formState.errors.password ? 'border-destructive' : ''}
                         />
-                        {!form.formState.errors.password && field.value && (
+                        {!form.formState.errors.password && field.value && 
+                         field.value.length >= 8 && 
+                         /[A-Za-z]/.test(field.value) && 
+                         /\d/.test(field.value) && (
                           <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                           </svg>
@@ -194,11 +198,10 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="marketing">마케팅</SelectItem>
-                        <SelectItem value="strategy">기획/전략</SelectItem>
-                        <SelectItem value="business">사업개발</SelectItem>
-                        <SelectItem value="research">리서치</SelectItem>
-                        <SelectItem value="product">상품개발</SelectItem>
+                        <SelectItem value="marketing">마케팅팀</SelectItem>
+                        <SelectItem value="strategy">기획/전략팀</SelectItem>
+                        <SelectItem value="insights">인사이트팀</SelectItem>
+                        <SelectItem value="data">데이터 분석팀</SelectItem>
                         <SelectItem value="other">기타</SelectItem>
                       </SelectContent>
                     </Select>
@@ -213,12 +216,20 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                 name="product"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>담당 제품/서비스</FormLabel>
+                    <FormLabel>담당 제품/서비스 *</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="담당하시는 제품이나 서비스명 (선택사항)"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          placeholder="담당하시는 제품 또는 서비스명을 입력해주세요"
+                          {...field}
+                          className={form.formState.errors.product ? 'border-destructive' : ''}
+                        />
+                        {!form.formState.errors.product && field.value && (
+                          <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -252,7 +263,7 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
               <Button
                 type="submit"
                 className="w-full py-4 text-lg font-semibold mt-8"
-                disabled={registerMutation.isPending}
+                disabled={registerMutation.isPending || !form.formState.isValid}
               >
                 {registerMutation.isPending ? (
                   <>

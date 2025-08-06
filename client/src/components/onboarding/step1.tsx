@@ -81,7 +81,7 @@ export default function Step1({ onComplete }: Step1Props) {
                   onClick={() => handleTagClick(tag.name)}
                   className="tag-button hover:border-primary hover:text-primary"
                 >
-                  <span className="mr-1">{tag.icon}</span>
+                  <span className="mr-0.5">{tag.icon}</span>
                   {tag.name}
                 </Button>
               ))}

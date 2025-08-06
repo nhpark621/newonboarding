@@ -43,8 +43,12 @@ Preferred communication style: Simple, everyday language.
 
 ### Multi-Step Onboarding Flow
 - **Step 1**: Concern input with predefined tags and auto-completion for faster user engagement
+  - Enhanced tag functionality: clicking tags appends text to existing input instead of replacing
+  - Simplified auto-generated text without redundant phrases
+  - Removed auto-generated text preview for cleaner UX
 - **Step 2**: AI-powered service recommendation with interactive card selection and hover previews
 - **Step 3**: Registration form with company details and terms acceptance, followed by success confirmation
+- **Navigation**: Clickable progress indicators allow step navigation, back button for previous steps
 
 ### Development and Deployment
 - **Build System**: Vite for frontend bundling with esbuild for server-side compilation

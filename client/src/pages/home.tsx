@@ -23,6 +23,7 @@ export interface OnboardingData {
 export default function Home() {
   const [currentStep, setCurrentStep] = useState(1);
   const [showMatching, setShowMatching] = useState(false);
+  const [matchingStage, setMatchingStage] = useState(0); // 0: analyzing, 1: matching, 2: completing
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     userConcern: "",
     selectedServices: [],
@@ -49,13 +50,17 @@ export default function Home() {
   const handleStep1Complete = (userConcern: string) => {
     setOnboardingData(prev => ({ ...prev, userConcern }));
     setShowMatching(true);
+    setMatchingStage(0);
     trackEvent('step1_completed');
     
-    // Show matching animation for 2 seconds, then proceed to Step 2
+    // Progressive stage animation: analyzing → matching → completing
+    setTimeout(() => setMatchingStage(1), 800);  // Move to matching stage
+    setTimeout(() => setMatchingStage(2), 1600); // Move to completing stage
     setTimeout(() => {
       setShowMatching(false);
+      setMatchingStage(0);
       setCurrentStep(2);
-    }, 2000);
+    }, 2500);
   };
 
   const handleStep2Complete = (selectedServices: string[]) => {
@@ -129,14 +134,80 @@ export default function Home() {
       <main className="fade-in">
         {showMatching ? (
           <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center max-w-md mx-auto px-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="text-center max-w-lg mx-auto px-6">
+              {/* Step-based Progress Animation */}
+              <div className="mb-8">
+                <div className="flex items-center justify-center space-x-4 mb-4">
+                  {/* Stage 1: Analyzing */}
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                      matchingStage >= 0 ? 'bg-primary' : 'bg-muted'
+                    }`}>
+                      {matchingStage > 0 ? (
+                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                      )}
+                    </div>
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                      matchingStage >= 0 ? 'text-primary' : 'text-muted-foreground'
+                    }`}>분석 중</span>
+                  </div>
+                  
+                  {/* Connector 1 */}
+                  <div className={`w-8 h-0.5 transition-all duration-500 ${
+                    matchingStage >= 1 ? 'bg-primary' : 'bg-muted animate-pulse'
+                  }`}></div>
+                  
+                  {/* Stage 2: Matching */}
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                      matchingStage >= 1 ? 'bg-primary' : 'bg-muted'
+                    }`}>
+                      {matchingStage > 1 ? (
+                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : matchingStage === 1 ? (
+                        <div className="w-3 h-3 bg-white rounded-full animate-bounce"></div>
+                      ) : (
+                        <div className="w-3 h-3 bg-muted-foreground/30 rounded-full"></div>
+                      )}
+                    </div>
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                      matchingStage >= 1 ? 'text-primary' : 'text-muted-foreground'
+                    }`}>매칭 중</span>
+                  </div>
+                  
+                  {/* Connector 2 */}
+                  <div className={`w-8 h-0.5 transition-all duration-500 ${
+                    matchingStage >= 2 ? 'bg-primary' : 'bg-muted'
+                  }`}></div>
+                  
+                  {/* Stage 3: Completing */}
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
+                      matchingStage >= 2 ? 'bg-primary' : 'bg-muted'
+                    }`}>
+                      {matchingStage === 2 ? (
+                        <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                      ) : (
+                        <div className="w-3 h-3 bg-muted-foreground/30 rounded-full"></div>
+                      )}
+                    </div>
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                      matchingStage >= 2 ? 'text-primary' : 'text-muted-foreground'
+                    }`}>구성 완료</span>
+                  </div>
+                </div>
               </div>
+              
               <h2 className="text-2xl font-bold text-foreground mb-3">
-                맞춤형 분석 서비스를 구성 중입니다
+                맞춤형 경쟁사 분석 서비스를 매칭 중입니다.
               </h2>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 입력해주신 고민을 바탕으로 최적의 서비스를 매칭하고 있어요
               </p>
             </div>

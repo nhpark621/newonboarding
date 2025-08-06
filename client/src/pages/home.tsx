@@ -7,6 +7,9 @@ import Step2 from "@/components/onboarding/step2";
 import Step3 from "@/components/onboarding/step3";
 import companyLogo from "@assets/회사로고_1754476459763.png";
 import companyIcon from "@assets/회사 아이콘_1754476465483.png";
+import mascot1 from "@assets/1아이콘_1754479209971.png";
+import mascot2 from "@assets/2아이콘_1754479209969.png";
+import mascot3 from "@assets/3아이콘_1754479209970.png";
 
 export interface OnboardingData {
   userConcern: string;
@@ -144,7 +147,7 @@ export default function Home() {
                       matchingStage === 0 ? 'scale-110' : 'scale-100'
                     } ${matchingStage > 0 ? 'opacity-60' : 'opacity-100'}`}>
                       <img 
-                        src="/attached_assets/1아이콘_1754479209971.png" 
+                        src={mascot1} 
                         alt="Analyzing" 
                         className="w-full h-full object-contain"
                       />
@@ -170,7 +173,7 @@ export default function Home() {
                       matchingStage === 1 ? 'animate-bounce scale-110' : 'scale-100'
                     } ${matchingStage === 1 ? 'opacity-100' : matchingStage > 1 ? 'opacity-60' : 'opacity-40'}`}>
                       <img 
-                        src="/attached_assets/2아이콘_1754479209969.png" 
+                        src={mascot2} 
                         alt="Matching" 
                         className="w-full h-full object-contain"
                       />
@@ -196,7 +199,7 @@ export default function Home() {
                       matchingStage === 2 ? 'animate-pulse scale-110' : 'scale-100'
                     } ${matchingStage === 2 ? 'opacity-100' : 'opacity-40'}`}>
                       <img 
-                        src="/attached_assets/3아이콘_1754479209970.png" 
+                        src={mascot3} 
                         alt="Complete" 
                         className="w-full h-full object-contain"
                       />

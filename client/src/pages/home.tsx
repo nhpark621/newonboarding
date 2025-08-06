@@ -172,7 +172,7 @@ export default function Home() {
                     </div>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 0 ? 'text-primary' : 'text-muted-foreground'
-                    }`}>Analyzing</span>
+                    }`}>분석 중</span>
                   </div>
 
                   {/* Step 2: Matching */}
@@ -196,7 +196,7 @@ export default function Home() {
                     </div>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 1 ? 'text-primary' : 'text-muted-foreground'
-                    }`}>Matching</span>
+                    }`}>매칭 중</span>
                   </div>
 
                   {/* Step 3: Complete */}
@@ -210,16 +210,16 @@ export default function Home() {
                     </div>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 2 ? 'text-green-600' : 'text-muted-foreground'
-                    }`}>Complete</span>
+                    }`}>완료</span>
                   </div>
                 </div>
               </div>
               
-              <h2 className="text-2xl font-bold text-foreground mb-3">
-                Matching your customized competitor analysis service…
+              <h2 className="text-xl font-bold text-foreground mb-3 text-center">
+                맞춤형 경쟁사 분석 서비스를 매칭 중입니다
               </h2>
-              <p className="text-muted-foreground text-sm">
-                We're using your input to find the most relevant insights.
+              <p className="text-muted-foreground text-xs text-center">
+                입력해주신 궁금한 점을 바탕으로 최적의 서비스를 매칭하고 있어요
               </p>
             </div>
           </div>

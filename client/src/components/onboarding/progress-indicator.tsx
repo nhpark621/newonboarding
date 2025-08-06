@@ -1,17 +1,45 @@
 interface ProgressIndicatorProps {
   currentStep: number;
+  onStepClick?: (step: number) => void;
+  canNavigate?: {
+    step1: boolean;
+    step2: boolean;
+    step3: boolean;
+  };
 }
 
-export default function ProgressIndicator({ currentStep }: ProgressIndicatorProps) {
+export default function ProgressIndicator({ 
+  currentStep, 
+  onStepClick,
+  canNavigate = { step1: true, step2: false, step3: false }
+}: ProgressIndicatorProps) {
+  const handleStepClick = (step: number) => {
+    if (onStepClick) {
+      onStepClick(step);
+    }
+  };
+
+  const getStepClass = (step: number) => {
+    const isActive = currentStep >= step;
+    const isClickable = canNavigate[`step${step}` as keyof typeof canNavigate];
+    
+    return `w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+      isActive 
+        ? 'bg-primary text-primary-foreground' 
+        : 'bg-muted text-muted-foreground'
+    } ${
+      isClickable && onStepClick 
+        ? 'cursor-pointer hover:scale-110 hover:shadow-md' 
+        : ''
+    }`;
+  };
+
   return (
     <div className="flex items-center space-x-4">
       <div className="flex items-center">
         <div 
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-            currentStep >= 1 
-              ? 'bg-primary text-primary-foreground' 
-              : 'bg-muted text-muted-foreground'
-          }`}
+          className={getStepClass(1)}
+          onClick={() => canNavigate.step1 && handleStepClick(1)}
         >
           1
         </div>
@@ -23,11 +51,8 @@ export default function ProgressIndicator({ currentStep }: ProgressIndicatorProp
           />
         </div>
         <div 
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-            currentStep >= 2 
-              ? 'bg-primary text-primary-foreground' 
-              : 'bg-muted text-muted-foreground'
-          }`}
+          className={getStepClass(2)}
+          onClick={() => canNavigate.step2 && handleStepClick(2)}
         >
           2
         </div>
@@ -39,11 +64,8 @@ export default function ProgressIndicator({ currentStep }: ProgressIndicatorProp
           />
         </div>
         <div 
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-            currentStep >= 3 
-              ? 'bg-primary text-primary-foreground' 
-              : 'bg-muted text-muted-foreground'
-          }`}
+          className={getStepClass(3)}
+          onClick={() => canNavigate.step3 && handleStepClick(3)}
         >
           3
         </div>

@@ -136,78 +136,79 @@ export default function Home() {
       {/* Main Content */}
       <main className="fade-in">
         {showMatching ? (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center max-w-lg mx-auto px-6">
-              {/* Mascot-based Progress Animation */}
+          <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-secondary/20 to-background">
+            <div className="text-center max-w-lg mx-auto px-6 bg-background/80 backdrop-blur-sm rounded-2xl py-12 shadow-lg border border-border/50">
+              {/* Professional Progress Interface */}
               <div className="mb-8">
-                <div className="flex items-center justify-center space-x-16 mb-6">
-                  {/* Stage 1: Analyzing - Both hands together */}
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className={`relative w-20 h-20 transition-all duration-500 ${
-                      matchingStage === 0 ? 'scale-110' : 'scale-100'
-                    } ${matchingStage > 0 ? 'opacity-60' : 'opacity-100'}`}>
-                      <img 
-                        src={mascot1} 
-                        alt="Analyzing" 
-                        className="w-full h-full object-contain"
-                      />
-                      {matchingStage === 0 && (
-                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
-                      )}
-                      {matchingStage > 0 && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </div>
+                {/* Progress Bar Container */}
+                <div className="w-full max-w-md mx-auto mb-8">
+                  <div className="bg-secondary/50 rounded-full h-2 overflow-hidden">
+                    <div 
+                      className={`h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-700 ease-out ${
+                        matchingStage === 0 ? 'w-1/3' : matchingStage === 1 ? 'w-2/3' : 'w-full'
+                      }`}
+                    >
+                      <div className="h-full bg-white/20 animate-pulse rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Step Indicators */}
+                <div className="flex items-center justify-center space-x-12">
+                  {/* Step 1: Analyzing */}
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-500 ${
+                      matchingStage >= 0 ? 'border-primary bg-primary text-white' : 'border-muted bg-background text-muted-foreground'
+                    }`}>
+                      {matchingStage > 0 ? (
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="w-6 h-6 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                       )}
                     </div>
-                    <span className={`text-sm font-medium transition-colors duration-300 text-center ${
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 0 ? 'text-primary' : 'text-muted-foreground'
                     }`}>Analyzing</span>
                   </div>
-                  
-                  {/* Stage 2: Matching - One hand raised */}
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className={`relative w-20 h-20 transition-all duration-500 ${
-                      matchingStage === 1 ? 'animate-bounce scale-110' : 'scale-100'
-                    } ${matchingStage === 1 ? 'opacity-100' : matchingStage > 1 ? 'opacity-60' : 'opacity-40'}`}>
-                      <img 
-                        src={mascot2} 
-                        alt="Matching" 
-                        className="w-full h-full object-contain"
-                      />
-                      {matchingStage === 1 && (
-                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
-                      )}
-                      {matchingStage > 1 && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </div>
+
+                  {/* Step 2: Matching */}
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-500 ${
+                      matchingStage >= 1 ? 'border-primary bg-primary text-white' : 'border-muted bg-background text-muted-foreground'
+                    }`}>
+                      {matchingStage > 1 ? (
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : matchingStage === 1 ? (
+                        <svg className="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      ) : (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
                       )}
                     </div>
-                    <span className={`text-sm font-medium transition-colors duration-300 text-center ${
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 1 ? 'text-primary' : 'text-muted-foreground'
                     }`}>Matching</span>
                   </div>
-                  
-                  {/* Stage 3: Complete - Both hands raised */}
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className={`relative w-20 h-20 transition-all duration-500 ${
-                      matchingStage === 2 ? 'animate-pulse scale-110' : 'scale-100'
-                    } ${matchingStage === 2 ? 'opacity-100' : 'opacity-40'}`}>
-                      <img 
-                        src={mascot3} 
-                        alt="Complete" 
-                        className="w-full h-full object-contain"
-                      />
-                      {matchingStage === 2 && (
-                        <div className="absolute inset-0 bg-green-500/10 rounded-full animate-ping"></div>
-                      )}
+
+                  {/* Step 3: Complete */}
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-500 ${
+                      matchingStage >= 2 ? 'border-green-500 bg-green-500 text-white' : 'border-muted bg-background text-muted-foreground'
+                    }`}>
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
                     </div>
-                    <span className={`text-sm font-medium transition-colors duration-300 text-center ${
+                    <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 2 ? 'text-green-600' : 'text-muted-foreground'
                     }`}>Complete</span>
                   </div>
@@ -215,10 +216,10 @@ export default function Home() {
               </div>
               
               <h2 className="text-2xl font-bold text-foreground mb-3">
-                맞춤형 경쟁사 분석 서비스를 매칭 중입니다.
+                Matching your customized competitor analysis service…
               </h2>
               <p className="text-muted-foreground text-sm">
-                입력해주신 고민을 바탕으로 최적의 서비스를 매칭하고 있어요
+                We're using your input to find the most relevant insights.
               </p>
             </div>
           </div>

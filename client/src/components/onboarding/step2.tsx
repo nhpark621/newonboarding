@@ -14,82 +14,82 @@ interface Step2Props {
 const SERVICE_DETAILS = {
   "뉴스·보도자료 분석": {
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="4" y="4" width="16" height="16" rx="2" fill="currentColor"/>
-        <rect x="6" y="7" width="6" height="1" fill="white"/>
-        <rect x="6" y="9" width="12" height="1" fill="white"/>
-        <rect x="6" y="11" width="12" height="1" fill="white"/>
-        <rect x="6" y="13" width="8" height="1" fill="white"/>
-        <rect x="14" y="7" width="4" height="3" fill="white"/>
-      </svg>
+      <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <rect x="4" y="4" width="16" height="16" rx="2" fill="#3B82F6"/>
+          <rect x="6" y="7" width="6" height="1" fill="white"/>
+          <rect x="6" y="9" width="12" height="1" fill="white"/>
+          <rect x="6" y="11" width="12" height="1" fill="white"/>
+          <rect x="6" y="13" width="8" height="1" fill="white"/>
+          <rect x="14" y="7" width="4" height="3" fill="white"/>
+        </svg>
+      </div>
     ),
-    color: "from-blue-500 to-blue-600",
+    color: "bg-transparent",
     description: "경쟁사의 최신 뉴스를 분석해 핵심 이슈와\n전략 방향을 파악할 수 있어요\n주요 기사도 함께 추천해드려요!"
   },
   "신제품·서비스 출시": {
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M12 2L15 8L22 9L17 14L18 21L12 18L6 21L7 14L2 9L9 8L12 2Z" fill="currentColor"/>
-        <circle cx="12" cy="10" r="2" fill="white"/>
-      </svg>
+      <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L15 8L22 9L17 14L18 21L12 18L6 21L7 14L2 9L9 8L12 2Z" fill="#10B981"/>
+        </svg>
+      </div>
     ),
-    color: "from-emerald-500 to-emerald-600",
+    color: "bg-transparent",
     description: "경쟁사가 출시한 신제품과 서비스, 기능 확장 현황을\n한눈에 정리해드려요\n시장 대응 흐름을 빠르게 파악할 수 있어요!"
   },
   "인재 영입": {
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="8" r="4" fill="currentColor"/>
-        <path d="M12 14C8 14 4 16 4 20H20C20 16 16 14 12 14Z" fill="currentColor"/>
-        <circle cx="18" cy="6" r="2" fill="currentColor"/>
-        <path d="M18 10C16.5 10 15 10.5 15 12H21C21 10.5 19.5 10 18 10Z" fill="currentColor"/>
-      </svg>
+      <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="3" fill="#8B5CF6"/>
+          <path d="M12 12C8.69 12 6 14.69 6 18H18C18 14.69 15.31 12 12 12Z" fill="#8B5CF6"/>
+        </svg>
+      </div>
     ),
-    color: "from-purple-500 to-purple-600",
+    color: "bg-transparent",
     description: "경쟁사 채용 공고를 모니터링해 주요 영입 분야와\n전략 변화 가능성을 알려드려요\n인재 영입으로 준비 중인 전략을 유추할 수 있어요!"
   },
   "광고 분석": {
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M18 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V4C20 2.9 19.1 2 18 2Z" fill="currentColor"/>
-        <rect x="6" y="6" width="12" height="6" fill="white"/>
-        <rect x="6" y="14" width="8" height="1" fill="white"/>
-        <rect x="6" y="16" width="6" height="1" fill="white"/>
-        <rect x="6" y="18" width="10" height="1" fill="white"/>
-      </svg>
+      <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M19 7H5C3.9 7 3 7.9 3 9V18C3 19.1 3.9 20 5 20H19C20.1 20 21 19.1 21 18V9C21 7.9 20.1 7 19 7Z" fill="#F97316"/>
+          <path d="M12 2L15.5 6H8.5L12 2Z" fill="#F97316"/>
+          <circle cx="12" cy="13" r="2" fill="white"/>
+        </svg>
+      </div>
     ),
-    color: "from-orange-500 to-orange-600",
+    color: "bg-transparent",
     description: "경쟁사가 언제, 어디에, 어떤 광고를 집행했는지\n확인하고, 신규 콘텐츠도 함께 분석해드려요\n광고 전략의 흐름을 쉽게 파악할 수 있어요!"
   },
   "SNS 콘텐츠": {
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/>
-        <circle cx="8" cy="8" r="2" fill="white"/>
-        <path d="M14 8H18V9H14V8Z" fill="white"/>
-        <path d="M14 11H18V12H14V11Z" fill="white"/>
-        <path d="M6 14H18V15H6V14Z" fill="white"/>
-        <path d="M6 17H12V18H6V17Z" fill="white"/>
-      </svg>
+      <div className="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M20 2H4C2.9 2 2 2.9 2 4V16C2 17.1 2.9 18 4 18H8L12 22L16 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="#06B6D4"/>
+          <circle cx="8" cy="9" r="1.5" fill="white"/>
+          <circle cx="12" cy="9" r="1.5" fill="white"/>
+          <circle cx="16" cy="9" r="1.5" fill="white"/>
+        </svg>
+      </div>
     ),
-    color: "from-cyan-500 to-cyan-600",
+    color: "bg-transparent",
     description: "경쟁사의 SNS 채널에서 어떤 콘텐츠가 올라오고,\n반응은 어떤지 실시간으로 분석해드려요\n채널별 성과 비교도 가능해요!"
   },
   "이벤트 모니터링": {
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <rect x="3" y="6" width="18" height="14" rx="2" fill="currentColor"/>
-        <rect x="6" y="2" width="2" height="6" fill="currentColor"/>
-        <rect x="16" y="2" width="2" height="6" fill="currentColor"/>
-        <circle cx="8" cy="11" r="1" fill="white"/>
-        <circle cx="12" cy="11" r="1" fill="white"/>
-        <circle cx="16" cy="11" r="1" fill="white"/>
-        <circle cx="8" cy="15" r="1" fill="white"/>
-        <circle cx="12" cy="15" r="1" fill="white"/>
-        <circle cx="16" cy="15" r="1" fill="white"/>
-      </svg>
+      <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" fill="#EC4899"/>
+          <rect x="6" y="12" width="12" height="8" rx="2" fill="#EC4899"/>
+          <rect x="8" y="14" width="8" height="1" fill="white"/>
+          <rect x="8" y="16" width="6" height="1" fill="white"/>
+        </svg>
+      </div>
     ),
-    color: "from-rose-500 to-rose-600",
+    color: "bg-transparent",
     description: "경쟁사가 진행한 프로모션, 할인, 사은품 증정 등\n이벤트 현황을 정리해드려요\n혜택 구성과 타이밍까지 비교할 수 있어요!"
   }
 };
@@ -205,7 +205,7 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
                       >
                         <CardContent className="p-6 flex flex-col h-full">
                           <div className="flex items-center mb-4">
-                            <div className={`w-12 h-12 bg-gradient-to-br ${service.color} rounded-lg flex items-center justify-center mr-4 text-white`}>
+                            <div className="mr-4">
                               {service.icon}
                             </div>
                             <h3 className="text-xl font-semibold text-foreground">{serviceName}</h3>
@@ -254,7 +254,7 @@ export default function Step2({ userConcern, onComplete }: Step2Props) {
                       >
                         <CardContent className="p-6 flex flex-col h-full">
                           <div className="flex items-center mb-4">
-                            <div className={`w-12 h-12 bg-gradient-to-br ${service.color} rounded-lg flex items-center justify-center mr-4 text-white`}>
+                            <div className="mr-4">
                               {service.icon}
                             </div>
                             <h3 className="text-xl font-semibold text-foreground">{serviceName}</h3>

@@ -137,19 +137,19 @@ export default function Home() {
             <div className="text-center max-w-lg mx-auto px-6">
               {/* Mascot-based Progress Animation */}
               <div className="mb-8">
-                <div className="flex items-center justify-center space-x-12 mb-6">
-                  {/* Stage 1: Analyzing */}
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className={`relative w-16 h-16 transition-all duration-500 ${
-                      matchingStage === 0 ? 'animate-pulse' : ''
+                <div className="flex items-center justify-center space-x-16 mb-6">
+                  {/* Stage 1: Analyzing - Both hands together */}
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className={`relative w-20 h-20 transition-all duration-500 ${
+                      matchingStage === 0 ? 'scale-110' : 'scale-100'
                     } ${matchingStage > 0 ? 'opacity-60' : 'opacity-100'}`}>
                       <img 
-                        src="/attached_assets/회사 아이콘_1754478595306.png" 
+                        src="/attached_assets/1아이콘_1754479209971.png" 
                         alt="Analyzing" 
                         className="w-full h-full object-contain"
                       />
                       {matchingStage === 0 && (
-                        <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
+                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
                       )}
                       {matchingStage > 0 && (
                         <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
@@ -159,31 +159,23 @@ export default function Home() {
                         </div>
                       )}
                     </div>
-                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                    <span className={`text-sm font-medium transition-colors duration-300 text-center ${
                       matchingStage >= 0 ? 'text-primary' : 'text-muted-foreground'
                     }`}>Analyzing</span>
                   </div>
                   
-                  {/* Stage 2: Matching */}
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className={`relative w-16 h-16 transition-all duration-500 ${
-                      matchingStage === 1 ? 'animate-bounce' : ''
+                  {/* Stage 2: Matching - One hand raised */}
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className={`relative w-20 h-20 transition-all duration-500 ${
+                      matchingStage === 1 ? 'animate-bounce scale-110' : 'scale-100'
                     } ${matchingStage === 1 ? 'opacity-100' : matchingStage > 1 ? 'opacity-60' : 'opacity-40'}`}>
-                      <div className={`w-full h-full ${matchingStage === 1 ? 'animate-spin' : ''}`} 
-                           style={matchingStage === 1 ? { animationDuration: '2s' } : {}}>
-                        <img 
-                          src="/attached_assets/회사 아이콘_1754478595306.png" 
-                          alt="Matching" 
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
+                      <img 
+                        src="/attached_assets/2아이콘_1754479209969.png" 
+                        alt="Matching" 
+                        className="w-full h-full object-contain"
+                      />
                       {matchingStage === 1 && (
-                        <>
-                          <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
-                          <div className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-full animate-pulse"></div>
-                          <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-primary rounded-full animate-pulse" 
-                               style={{ animationDelay: '0.5s' }}></div>
-                        </>
+                        <div className="absolute inset-0 bg-primary/10 rounded-full animate-ping"></div>
                       )}
                       {matchingStage > 1 && (
                         <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
@@ -193,34 +185,27 @@ export default function Home() {
                         </div>
                       )}
                     </div>
-                    <span className={`text-sm font-medium transition-colors duration-300 ${
+                    <span className={`text-sm font-medium transition-colors duration-300 text-center ${
                       matchingStage >= 1 ? 'text-primary' : 'text-muted-foreground'
                     }`}>Matching</span>
                   </div>
                   
-                  {/* Stage 3: Complete */}
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className={`relative w-16 h-16 transition-all duration-500 ${
-                      matchingStage === 2 ? 'animate-pulse' : ''
+                  {/* Stage 3: Complete - Both hands raised */}
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className={`relative w-20 h-20 transition-all duration-500 ${
+                      matchingStage === 2 ? 'animate-pulse scale-110' : 'scale-100'
                     } ${matchingStage === 2 ? 'opacity-100' : 'opacity-40'}`}>
                       <img 
-                        src="/attached_assets/회사 아이콘_1754478595306.png" 
+                        src="/attached_assets/3아이콘_1754479209970.png" 
                         alt="Complete" 
                         className="w-full h-full object-contain"
                       />
                       {matchingStage === 2 && (
-                        <>
-                          <div className="absolute inset-0 bg-green-500/20 rounded-full animate-ping"></div>
-                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        </>
+                        <div className="absolute inset-0 bg-green-500/10 rounded-full animate-ping"></div>
                       )}
                     </div>
-                    <span className={`text-sm font-medium transition-colors duration-300 ${
-                      matchingStage >= 2 ? 'text-primary' : 'text-muted-foreground'
+                    <span className={`text-sm font-medium transition-colors duration-300 text-center ${
+                      matchingStage >= 2 ? 'text-green-600' : 'text-muted-foreground'
                     }`}>Complete</span>
                   </div>
                 </div>

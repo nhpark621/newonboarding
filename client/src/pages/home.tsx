@@ -135,71 +135,93 @@ export default function Home() {
         {showMatching ? (
           <div className="min-h-screen flex items-center justify-center">
             <div className="text-center max-w-lg mx-auto px-6">
-              {/* Step-based Progress Animation */}
+              {/* Mascot-based Progress Animation */}
               <div className="mb-8">
-                <div className="flex items-center justify-center space-x-4 mb-4">
+                <div className="flex items-center justify-center space-x-12 mb-6">
                   {/* Stage 1: Analyzing */}
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
-                      matchingStage >= 0 ? 'bg-primary' : 'bg-muted'
-                    }`}>
-                      {matchingStage > 0 ? (
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      ) : (
-                        <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className={`relative w-16 h-16 transition-all duration-500 ${
+                      matchingStage === 0 ? 'animate-pulse' : ''
+                    } ${matchingStage > 0 ? 'opacity-60' : 'opacity-100'}`}>
+                      <img 
+                        src="/attached_assets/회사 아이콘_1754478595306.png" 
+                        alt="Analyzing" 
+                        className="w-full h-full object-contain"
+                      />
+                      {matchingStage === 0 && (
+                        <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
+                      )}
+                      {matchingStage > 0 && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
                       )}
                     </div>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 0 ? 'text-primary' : 'text-muted-foreground'
-                    }`}>분석 중</span>
+                    }`}>Analyzing</span>
                   </div>
                   
-                  {/* Connector 1 */}
-                  <div className={`w-8 h-0.5 transition-all duration-500 ${
-                    matchingStage >= 1 ? 'bg-primary' : 'bg-muted animate-pulse'
-                  }`}></div>
-                  
                   {/* Stage 2: Matching */}
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
-                      matchingStage >= 1 ? 'bg-primary' : 'bg-muted'
-                    }`}>
-                      {matchingStage > 1 ? (
-                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      ) : matchingStage === 1 ? (
-                        <div className="w-3 h-3 bg-white rounded-full animate-bounce"></div>
-                      ) : (
-                        <div className="w-3 h-3 bg-muted-foreground/30 rounded-full"></div>
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className={`relative w-16 h-16 transition-all duration-500 ${
+                      matchingStage === 1 ? 'animate-bounce' : ''
+                    } ${matchingStage === 1 ? 'opacity-100' : matchingStage > 1 ? 'opacity-60' : 'opacity-40'}`}>
+                      <div className={`w-full h-full ${matchingStage === 1 ? 'animate-spin' : ''}`} 
+                           style={matchingStage === 1 ? { animationDuration: '2s' } : {}}>
+                        <img 
+                          src="/attached_assets/회사 아이콘_1754478595306.png" 
+                          alt="Matching" 
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                      {matchingStage === 1 && (
+                        <>
+                          <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
+                          <div className="absolute -top-2 -right-2 w-4 h-4 bg-primary rounded-full animate-pulse"></div>
+                          <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-primary rounded-full animate-pulse" 
+                               style={{ animationDelay: '0.5s' }}></div>
+                        </>
+                      )}
+                      {matchingStage > 1 && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
                       )}
                     </div>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 1 ? 'text-primary' : 'text-muted-foreground'
-                    }`}>매칭 중</span>
+                    }`}>Matching</span>
                   </div>
                   
-                  {/* Connector 2 */}
-                  <div className={`w-8 h-0.5 transition-all duration-500 ${
-                    matchingStage >= 2 ? 'bg-primary' : 'bg-muted'
-                  }`}></div>
-                  
-                  {/* Stage 3: Completing */}
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${
-                      matchingStage >= 2 ? 'bg-primary' : 'bg-muted'
-                    }`}>
-                      {matchingStage === 2 ? (
-                        <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                      ) : (
-                        <div className="w-3 h-3 bg-muted-foreground/30 rounded-full"></div>
+                  {/* Stage 3: Complete */}
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className={`relative w-16 h-16 transition-all duration-500 ${
+                      matchingStage === 2 ? 'animate-pulse' : ''
+                    } ${matchingStage === 2 ? 'opacity-100' : 'opacity-40'}`}>
+                      <img 
+                        src="/attached_assets/회사 아이콘_1754478595306.png" 
+                        alt="Complete" 
+                        className="w-full h-full object-contain"
+                      />
+                      {matchingStage === 2 && (
+                        <>
+                          <div className="absolute inset-0 bg-green-500/20 rounded-full animate-ping"></div>
+                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center animate-bounce">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </>
                       )}
                     </div>
                     <span className={`text-sm font-medium transition-colors duration-300 ${
                       matchingStage >= 2 ? 'text-primary' : 'text-muted-foreground'
-                    }`}>구성 완료</span>
+                    }`}>Complete</span>
                   </div>
                 </div>
               </div>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { trackEvent } from "@/lib/tracking";
-import { saveOnboardingData } from "@/lib/onboardingContext";
 import ProgressIndicator from "@/components/onboarding/progress-indicator";
 import Step1 from "@/components/onboarding/step1";
 import Step2 from "@/components/onboarding/step2";
@@ -73,18 +72,7 @@ export default function Home() {
   };
 
   const handleStep3Complete = (userData: OnboardingData['userData']) => {
-    const completeData = { ...onboardingData, userData };
-    setOnboardingData(completeData);
-    
-    // Save to localStorage for dashboard access (with userData guaranteed to exist)
-    if (userData) {
-      saveOnboardingData({
-        userConcern: onboardingData.userConcern,
-        selectedServices: onboardingData.selectedServices,
-        userData
-      });
-    }
-    
+    setOnboardingData(prev => ({ ...prev, userData }));
     trackEvent('signup_completed');
     trackEvent('onboarding_completed');
     

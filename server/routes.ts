@@ -3,12 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, serviceRecommendationSchema, insertOnboardingSessionSchema } from "@shared/schema";
 import OpenAI from "openai";
-import { suggestChannels, createChannelsFromSuggestions } from "./services/channelSuggest";
-import { discoverLinks } from "./services/linkDiscover";
-import { extractEvents } from "./services/eventExtract";
-import { deduplicateEvents } from "./services/dedupe";
-import { eventStorage } from "./services/eventStorage";
-import { mockPickCompetitors } from "./services/mockPickCompetitors";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
@@ -96,120 +90,6 @@ JSON 형태로 응답해주세요: { "recommended_services": ["서비스1", "서
     } catch (error) {
       console.error("Onboarding session error:", error);
       res.status(400).json({ message: "온보딩 세션 저장 중 오류가 발생했습니다." });
-    }
-  });
-
-  // Events Monitoring Endpoints
-  
-  // POST /api/channels/suggest - Suggest channels for competitors
-  app.post("/api/channels/suggest", async (req, res) => {
-    try {
-      const { productOrService, competitors, companyId } = req.body;
-      
-      if (!productOrService || !companyId) {
-        return res.status(400).json({ message: "제품/서비스와 회사 ID가 필요합니다." });
-      }
-      
-      // Use mock competitors if none provided
-      const finalCompetitors = competitors && competitors.length > 0 
-        ? competitors 
-        : mockPickCompetitors(productOrService);
-      
-      const suggestions = await suggestChannels(productOrService, finalCompetitors);
-      const channels = createChannelsFromSuggestions(suggestions);
-      
-      // Store channels
-      eventStorage.storeChannels(companyId, channels);
-      
-      res.json({ 
-        channels,
-        competitorsUsed: finalCompetitors
-      });
-    } catch (error) {
-      console.error("Channel suggestion error:", error);
-      res.status(500).json({ message: "채널 추천 중 오류가 발생했습니다." });
-    }
-  });
-  
-  // POST /api/events/discover - Discover event links from channels
-  app.post("/api/events/discover", async (req, res) => {
-    try {
-      const { companyId, limitPages = 2 } = req.body;
-      
-      if (!companyId) {
-        return res.status(400).json({ message: "회사 ID가 필요합니다." });
-      }
-      
-      const channels = eventStorage.getChannels(companyId);
-      
-      if (channels.length === 0) {
-        return res.status(404).json({ message: "채널을 먼저 생성해주세요." });
-      }
-      
-      const links = await discoverLinks(channels, limitPages);
-      
-      res.json({ 
-        links,
-        totalLinks: links.length
-      });
-    } catch (error) {
-      console.error("Link discovery error:", error);
-      res.status(500).json({ message: "링크 발견 중 오류가 발생했습니다." });
-    }
-  });
-  
-  // POST /api/events/crawl - Crawl and extract events (default: last 30 days)
-  app.post("/api/events/crawl", async (req, res) => {
-    try {
-      const { companyId, limitDays = 30, limitPages = 2 } = req.body;
-      
-      if (!companyId) {
-        return res.status(400).json({ message: "회사 ID가 필요합니다." });
-      }
-      
-      const channels = eventStorage.getChannels(companyId);
-      
-      if (channels.length === 0) {
-        return res.status(404).json({ message: "채널을 먼저 생성해주세요." });
-      }
-      
-      // Discover links
-      const links = await discoverLinks(channels, limitPages);
-      
-      // Extract events
-      let events = await extractEvents(links, limitDays);
-      
-      // Deduplicate
-      events = deduplicateEvents(events);
-      
-      // Store events
-      eventStorage.storeEvents(companyId, events);
-      
-      res.json({ 
-        events,
-        totalEvents: events.length
-      });
-    } catch (error) {
-      console.error("Event crawl error:", error);
-      res.status(500).json({ message: "이벤트 크롤링 중 오류가 발생했습니다." });
-    }
-  });
-  
-  // GET /api/events/summary - Get events summary for a company
-  app.get("/api/events/summary", async (req, res) => {
-    try {
-      const { companyId } = req.query;
-      
-      if (!companyId || typeof companyId !== 'string') {
-        return res.status(400).json({ message: "회사 ID가 필요합니다." });
-      }
-      
-      const summary = eventStorage.getSummary(companyId);
-      
-      res.json(summary);
-    } catch (error) {
-      console.error("Events summary error:", error);
-      res.status(500).json({ message: "이벤트 요약 조회 중 오류가 발생했습니다." });
     }
   });
 

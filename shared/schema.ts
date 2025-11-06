@@ -46,36 +46,3 @@ export type ServiceRecommendationRequest = z.infer<typeof serviceRecommendationS
 export interface ServiceRecommendationResponse {
   recommended_services: string[];
 }
-
-// Events Monitoring Schemas
-export interface Channel {
-  id: string;
-  companyName: string;
-  channelType: string;
-  url: string;
-  path: string;
-  createdAt: Date;
-}
-
-export interface EventItem {
-  id: string;
-  channelId: string;
-  companyName: string;
-  title: string;
-  url: string;
-  startDate: string | null;
-  endDate: string | null;
-  isActive: boolean;
-  discoveredAt: Date;
-}
-
-export interface EventsSummary {
-  totalChannels: number;
-  totalLinks: number;
-  newEventsCount: number;
-  endingSoonCount: number;
-  events: {
-    newIn30Days: EventItem[];
-    endingSoon: EventItem[];
-  };
-}

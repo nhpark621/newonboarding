@@ -26,15 +26,17 @@ Preferred communication style: Simple, everyday language.
 ### Data Storage Solutions
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
 - **Schema Design**: 
-  - Users table with authentication credentials and company information
+  - Users table with business information (company, team, product, competitors array) - no authentication required
   - Onboarding sessions table linking user concerns to selected services via JSON fields
 - **Development Storage**: In-memory storage implementation for rapid prototyping and testing
 - **Migration System**: Drizzle Kit for database schema migrations and management
 
-### Authentication and Authorization
-- **Simple Authentication**: Basic email/password registration without complex session management
-- **Form Validation**: Zod schema validation for type-safe form processing with specific business rules (8+ character passwords with letters and numbers)
-- **Data Collection**: Minimal required fields (email, company, team) with optional product specification
+### Data Collection (No Authentication)
+- **Business Information Focus**: Collecting business context instead of user credentials to reduce friction
+- **Form Validation**: Zod schema validation for type-safe form processing
+- **Required Fields**: Company name, team/department, product/service
+- **Optional Fields**: Competitors to monitor (multi-entry text field with add/remove functionality)
+- **Flexible Competitor Tracking**: Users can add multiple competitors or skip to receive AI-selected competitor insights
 
 ### External Service Integrations
 - **AI Recommendations**: OpenAI GPT-4o integration for analyzing user input and recommending relevant competitive analysis services
@@ -46,9 +48,28 @@ Preferred communication style: Simple, everyday language.
   - Enhanced tag functionality: clicking tags appends text to existing input instead of replacing
   - Simplified auto-generated text without redundant phrases
   - Removed auto-generated text preview for cleaner UX
+  - Loading screen with progressive animation (분석 중 → 매칭 중 → 완료) between Step 1 and Step 2
 - **Step 2**: AI-powered service recommendation with interactive card selection and hover previews
-- **Step 3**: Registration form with company details and terms acceptance, followed by success confirmation
+- **Step 3**: Business information form collecting company details for competitor analysis onboarding
+  - **No authentication required**: Removed email/password fields to reduce friction and focus on business needs
+  - **Required fields**: Company name, team/department selection, product/service name
+  - **Optional multi-entry competitors field**: Users can add/remove multiple competitors or skip entirely
+  - **AI-powered fallback**: If competitors are skipped, AI auto-selects relevant competitors for demo insights
+  - **Success modal**: Confirmation dialog with direct dashboard access button
 - **Navigation**: Clickable progress indicators allow step navigation, back button for previous steps
+
+### Recent Changes (November 2025)
+- **Removed authentication**: Converted Step 3 from user sign-up to business onboarding form
+  - Eliminated email/password fields and terms acceptance checkbox
+  - Simplified user experience to focus on competitive analysis needs
+- **Added competitor tracking**: Multi-entry field allowing users to specify competitors to monitor
+  - Tag-based UI with add/remove functionality
+  - Completely optional - can be skipped for AI-selected competitors
+- **Updated database schema**: 
+  - Removed: email, password fields from users table
+  - Added: competitors array field to users table
+- **Modified storage interface**: Removed getUserByEmail method, simplified user creation
+- **Updated API responses**: Registration endpoint returns business information instead of credentials
 
 ### Development and Deployment
 - **Build System**: Vite for frontend bundling with esbuild for server-side compilation

@@ -68,8 +68,17 @@ Preferred communication style: Simple, everyday language.
 - **Updated database schema**: 
   - Removed: email, password fields from users table
   - Added: competitors array field to users table
+  - Added: Channel table for tracking brand store monitoring channels
+  - Added: EventPage table for tracking discovered event/promotion pages
 - **Modified storage interface**: Removed getUserByEmail method, simplified user creation
 - **Updated API responses**: Registration endpoint returns business information instead of credentials
+- **Implemented Brand Store Event Finder**: Automatic discovery of competitor brand direct stores
+  - Domain discovery with intelligent candidate generation from competitor names
+  - E-commerce platform detection (Cafe24, Shopify, Godomall, MakeShop, WordPress, etc.)
+  - Event page route discovery with scoring algorithm
+  - Dashboard UI with candidate table, selection workflow, and approval system
+  - Two new API endpoints: `/api/brandstore/discover` and `/api/brandstore/approve`
+  - Graceful handling of network failures and empty results
 
 ### Development and Deployment
 - **Build System**: Vite for frontend bundling with esbuild for server-side compilation

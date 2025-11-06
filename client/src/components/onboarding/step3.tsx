@@ -19,45 +19,37 @@ interface Step3Props {
 }
 
 const formSchema = z.object({
-  email: z.string().email("올바른 이메일 형식을 입력해주세요"),
-  password: z.string()
-    .min(8, "8자 이상 입력해주세요")
-    .regex(/[A-Za-z]/, "영문을 포함해주세요")
-    .regex(/\d/, "숫자를 포함해주세요"),
   company: z.string().min(1, "회사명을 입력해주세요"),
   team: z.string().min(1, "팀을 선택해주세요"),
   product: z.string().min(1, "담당 제품/서비스를 입력해주세요"),
-  terms: z.boolean().refine(val => val === true, "약관에 동의해주세요"),
+  competitors: z.array(z.string()).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 export default function Step3({ onboardingData, onComplete }: Step3Props) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showTermsModal, setShowTermsModal] = useState(false);
-  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [competitorInput, setCompetitorInput] = useState("");
+  const [competitors, setCompetitors] = useState<string[]>([]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    mode: "onChange", // Enable real-time validation
+    mode: "onChange",
     defaultValues: {
-      email: "",
-      password: "",
       company: "",
       team: "",
       product: "",
-      terms: false,
+      competitors: [],
     },
   });
 
   const registerMutation = useMutation({
     mutationFn: async (userData: FormData) => {
       const response = await apiRequest('POST', '/api/register', {
-        email: userData.email,
-        password: userData.password,
         company: userData.company,
         team: userData.team,
         product: userData.product,
+        competitors: competitors,
       });
       return response.json();
     },
@@ -83,83 +75,44 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
   const handleGoToDashboard = () => {
     const userData = form.getValues();
     onComplete({
-      email: userData.email,
-      password: userData.password,
       company: userData.company,
       team: userData.team,
       product: userData.product,
+      competitors: competitors,
     });
+  };
+
+  const handleAddCompetitor = () => {
+    if (competitorInput.trim() && !competitors.includes(competitorInput.trim())) {
+      setCompetitors([...competitors, competitorInput.trim()]);
+      setCompetitorInput("");
+    }
+  };
+
+  const handleRemoveCompetitor = (index: number) => {
+    setCompetitors(competitors.filter((_, i) => i !== index));
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddCompetitor();
+    }
   };
 
   return (
     <section className="slide-up">
       <div className="max-w-2xl mx-auto px-6 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">회원가입</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-4">경쟁사 분석 정보 입력</h1>
           <p className="text-lg text-muted-foreground">
-            개인화된 분석 결과를 제공하기 위해 간단한 정보를 입력해주세요.
+            맞춤형 경쟁사 분석을 위해 간단한 정보를 입력해주세요.
           </p>
         </div>
 
         <div className="bg-secondary rounded-2xl p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              {/* Email */}
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>이메일 주소 *</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          placeholder="example@company.com"
-                          {...field}
-                          className={form.formState.errors.email ? 'border-destructive' : ''}
-                        />
-                        {!form.formState.errors.email && field.value && (
-                          <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Password */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>비밀번호 *</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type="password"
-                          placeholder="영문 + 숫자 조합, 8자 이상"
-                          {...field}
-                          className={form.formState.errors.password ? 'border-destructive' : ''}
-                        />
-                        {!form.formState.errors.password && field.value && 
-                         field.value.length >= 8 && 
-                         /[A-Za-z]/.test(field.value) && 
-                         /\d/.test(field.value) && (
-                          <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               {/* Company */}
               <FormField
                 control={form.control}
@@ -172,6 +125,7 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                         <Input
                           placeholder="회사명을 입력해주세요"
                           {...field}
+                          data-testid="input-company"
                           className={form.formState.errors.company ? 'border-destructive' : ''}
                         />
                         {!form.formState.errors.company && field.value && (
@@ -195,7 +149,9 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                     <FormLabel>소속 팀 *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className={form.formState.errors.team ? 'border-destructive' : ''}>
+                        <SelectTrigger 
+                          data-testid="select-team"
+                          className={form.formState.errors.team ? 'border-destructive' : ''}>
                           <SelectValue placeholder="팀을 선택해주세요" />
                         </SelectTrigger>
                       </FormControl>
@@ -224,6 +180,7 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                         <Input
                           placeholder="담당하시는 제품 또는 서비스명을 입력해주세요"
                           {...field}
+                          data-testid="input-product"
                           className={form.formState.errors.product ? 'border-destructive' : ''}
                         />
                         {!form.formState.errors.product && field.value && (
@@ -238,47 +195,68 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                 )}
               />
 
-              {/* Terms */}
-              <FormField
-                control={form.control}
-                name="terms"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 pt-4">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        className="mt-1"
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm text-muted-foreground cursor-pointer">
+              {/* Competitors (Optional, Multi-entry) */}
+              <div className="space-y-3">
+                <FormLabel className="text-sm font-medium">
+                  모니터링할 경쟁사 <span className="text-muted-foreground font-normal">(선택사항)</span>
+                </FormLabel>
+                <div className="flex gap-2">
+                  <Input
+                    value={competitorInput}
+                    onChange={(e) => setCompetitorInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="경쟁사 이름을 입력하고 Enter 또는 추가 버튼을 눌러주세요"
+                    data-testid="input-competitor"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleAddCompetitor}
+                    disabled={!competitorInput.trim()}
+                    data-testid="button-add-competitor"
+                    variant="outline"
+                    className="whitespace-nowrap"
+                  >
+                    추가
+                  </Button>
+                </div>
+                
+                {/* Competitors List */}
+                {competitors.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {competitors.map((competitor, index) => (
+                      <div
+                        key={index}
+                        data-testid={`competitor-tag-${index}`}
+                        className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium"
+                      >
+                        <span>{competitor}</span>
                         <button
                           type="button"
-                          onClick={() => setShowTermsModal(true)}
-                          className="font-medium text-primary hover:underline"
+                          onClick={() => handleRemoveCompetitor(index)}
+                          data-testid={`button-remove-competitor-${index}`}
+                          className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
                         >
-                          서비스 이용약관
-                        </button>{" "}
-                        및{" "}
-                        <button
-                          type="button"
-                          onClick={() => setShowPrivacyModal(true)}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          개인정보 처리방침
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                         </button>
-                        에 동의합니다.
-                      </FormLabel>
-                      <FormMessage />
-                    </div>
-                  </FormItem>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              />
+                
+                {competitors.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    * 경쟁사를 입력하지 않으면 AI가 자동으로 선정한 경쟁사 분석 결과를 보여드립니다
+                  </p>
+                )}
+              </div>
 
               {/* Submit Button */}
               <Button
                 type="submit"
+                data-testid="button-submit-form"
                 className="w-full py-4 text-lg font-semibold mt-8"
                 disabled={registerMutation.isPending || !form.formState.isValid}
               >
@@ -288,11 +266,11 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    가입 중...
+                    처리 중...
                   </>
                 ) : (
                   <>
-                    경쟁사 분석 시작하기
+                    경쟁사 분석 대시보드 보기
                     <svg className="ml-2 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
@@ -318,55 +296,12 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
               </DialogDescription>
             </DialogHeader>
             <div className="text-center">
-              <Button onClick={handleGoToDashboard} className="px-6 py-3 font-semibold relative overflow-hidden bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 before:ease-out">
+              <Button 
+                onClick={handleGoToDashboard} 
+                data-testid="button-go-dashboard"
+                className="px-6 py-3 font-semibold relative overflow-hidden bg-gradient-to-r from-primary to-primary hover:from-primary/90 hover:to-primary/90 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 before:ease-out">
                 대시보드 시작하기
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Terms of Service Modal */}
-        <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">서비스 이용약관</DialogTitle>
-              <button
-                onClick={() => setShowTermsModal(false)}
-                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span className="sr-only">Close</span>
-              </button>
-            </DialogHeader>
-            <div className="py-6">
-              <p className="text-center text-muted-foreground">
-                서비스 이용약관은 현재 준비중입니다.
-              </p>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Privacy Policy Modal */}
-        <Dialog open={showPrivacyModal} onOpenChange={setShowPrivacyModal}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">개인정보 처리방침</DialogTitle>
-              <button
-                onClick={() => setShowPrivacyModal(false)}
-                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span className="sr-only">Close</span>
-              </button>
-            </DialogHeader>
-            <div className="py-6">
-              <p className="text-center text-muted-foreground">
-                개인정보 처리방침은 현재 준비중입니다.
-              </p>
             </div>
           </DialogContent>
         </Dialog>

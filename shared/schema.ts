@@ -5,11 +5,10 @@ import { z } from "zod";
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
   company: text("company").notNull(),
   team: text("team").notNull(),
-  product: text("product"),
+  product: text("product").notNull(),
+  competitors: text("competitors").array(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -22,11 +21,10 @@ export const onboardingSessions = pgTable("onboarding_sessions", {
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
-  email: true,
-  password: true,
   company: true,
   team: true,
   product: true,
+  competitors: true,
 });
 
 export const insertOnboardingSessionSchema = createInsertSchema(onboardingSessions).pick({

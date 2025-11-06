@@ -15,11 +15,10 @@ export interface OnboardingData {
   userConcern: string;
   selectedServices: string[];
   userData?: {
-    email: string;
-    password: string;
     company: string;
     team: string;
-    product?: string;
+    product: string;
+    competitors?: string[];
   };
 }
 

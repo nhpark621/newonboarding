@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,7 +19,6 @@ interface BrandStoreCandidate {
 export default function Dashboard() {
   const { toast } = useToast();
   const [selectedCandidates, setSelectedCandidates] = useState<Set<string>>(new Set());
-  const [isDiscovering, setIsDiscovering] = useState(false);
   const [candidates, setCandidates] = useState<BrandStoreCandidate[]>([]);
   // Get user data from localStorage (set during onboarding)
   const userData = JSON.parse(localStorage.getItem('onboarding_user_data') || '{}');
@@ -80,7 +79,6 @@ export default function Dashboard() {
   });
 
   const handleDiscover = () => {
-    setIsDiscovering(true);
     discoverMutation.mutate();
   };
 
@@ -100,12 +98,6 @@ export default function Dashboard() {
     );
     approveMutation.mutate(selections);
   };
-
-  useEffect(() => {
-    if (discoverMutation.isSuccess) {
-      setIsDiscovering(false);
-    }
-  }, [discoverMutation.isSuccess]);
 
   return (
     <div className="min-h-screen bg-background">

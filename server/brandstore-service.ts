@@ -78,8 +78,8 @@ export async function probeDomain(url: string): Promise<DomainCandidate> {
     
     clearTimeout(timeout);
     
-    const isValid = response.ok && 
-      response.headers.get("content-type")?.includes("text/html");
+    const contentType = response.headers.get("content-type");
+    const isValid = response.ok && (contentType?.includes("text/html") ?? false);
     
     return { url, isValid };
   } catch (error) {
@@ -330,7 +330,7 @@ export async function discoverEventRoutes(
     });
     
     // Combine and deduplicate routes
-    const allRoutes = [...new Set([...candidateRoutes, ...eventLinks])];
+    const allRoutes = Array.from(new Set([...candidateRoutes, ...eventLinks]));
     
     // Score and sort routes
     const scoredRoutes = allRoutes

@@ -74,12 +74,17 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
 
   const handleGoToDashboard = () => {
     const userData = form.getValues();
-    onComplete({
+    const completeData = {
       company: userData.company,
       team: userData.team,
       product: userData.product,
       competitors: competitors,
-    });
+    };
+    
+    // Save to localStorage for dashboard access
+    localStorage.setItem('onboarding_user_data', JSON.stringify(completeData));
+    
+    onComplete(completeData);
   };
 
   const handleAddCompetitor = () => {

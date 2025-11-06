@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, serviceRecommendationSchema, insertOnboardingSessionSchema } from "@shared/schema";
 import OpenAI from "openai";
+import { generateDomainCandidates, probeDomain, discoverEventRoutes, mockPickCompetitors, scoreEventRoute } from "./brandstore-service";
+import { z } from "zod";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key"
@@ -90,6 +92,121 @@ JSON 형태로 응답해주세요: { "recommended_services": ["서비스1", "서
     } catch (error) {
       console.error("Onboarding session error:", error);
       res.status(400).json({ message: "온보딩 세션 저장 중 오류가 발생했습니다." });
+    }
+  });
+
+  // Brand store discovery endpoint
+  app.post("/api/brandstore/discover", async (req, res) => {
+    try {
+      const schema = z.object({
+        competitors: z.array(z.string()),
+        productOrService: z.string().optional(),
+      });
+      
+      const { competitors, productOrService } = schema.parse(req.body);
+      
+      // Use mock competitors if none provided
+      const effectiveCompetitors = competitors.length > 0 
+        ? competitors 
+        : mockPickCompetitors(productOrService || "");
+      
+      const candidates = [];
+      
+      // Process each competitor
+      for (const competitor of effectiveCompetitors) {
+        const domainCandidates = generateDomainCandidates(competitor);
+        
+        // Probe domains to find valid ones (limit to first 3 valid)
+        const validDomains = [];
+        for (const domain of domainCandidates) {
+          const result = await probeDomain(domain);
+          if (result.isValid) {
+            validDomains.push(domain);
+            if (validDomains.length >= 3) break; // Limit to 3 per competitor
+          }
+        }
+        
+        // For each valid domain, discover event routes
+        for (const baseUrl of validDomains) {
+          const { routes, platform } = await discoverEventRoutes(baseUrl, competitor);
+          
+          if (routes.length > 0) {
+            // Calculate overall score for this candidate
+            const avgScore = routes.reduce((sum, route) => 
+              sum + scoreEventRoute(route, baseUrl, competitor), 0
+            ) / routes.length;
+            
+            candidates.push({
+              competitor,
+              baseUrl,
+              platform,
+              eventPaths: routes.slice(0, 5), // Top 5 routes
+              score: Math.round(avgScore * 10) / 10
+            });
+          }
+        }
+      }
+      
+      // Sort by score descending
+      candidates.sort((a, b) => b.score - a.score);
+      
+      res.json({ candidates });
+    } catch (error) {
+      console.error("Brand store discovery error:", error);
+      res.status(500).json({ 
+        message: "브랜드 스토어 탐색 중 오류가 발생했습니다.",
+        candidates: []
+      });
+    }
+  });
+
+  // Brand store approval endpoint
+  app.post("/api/brandstore/approve", async (req, res) => {
+    try {
+      const schema = z.object({
+        selections: z.array(z.object({
+          competitor: z.string(),
+          baseUrl: z.string(),
+          platform: z.string().optional(),
+          eventPaths: z.array(z.string()),
+        })),
+      });
+      
+      const { selections } = schema.parse(req.body);
+      
+      const channels = [];
+      const eventPages = [];
+      
+      for (const selection of selections) {
+        // Create channel
+        const channel = await storage.createChannel({
+          type: "brand_store",
+          competitorId: selection.competitor,
+          name: `${selection.competitor} 브랜드 스토어`,
+          baseUrl: selection.baseUrl,
+          platform: selection.platform || "generic",
+        });
+        
+        channels.push(channel);
+        
+        // Create event pages for this channel
+        for (const eventPath of selection.eventPaths) {
+          const eventPage = await storage.createEventPage({
+            channelId: channel.id,
+            url: eventPath,
+            status: "new",
+          });
+          
+          eventPages.push(eventPage);
+        }
+      }
+      
+      res.json({ channels, eventPages });
+    } catch (error) {
+      console.error("Brand store approval error:", error);
+      res.status(500).json({ 
+        message: "선택 항목 저장 중 오류가 발생했습니다."
+      });
     }
   });
 

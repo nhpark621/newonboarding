@@ -67,18 +67,17 @@ JSON 형태로 응답해주세요: { "recommended_services": ["서비스1", "서
   app.post("/api/register", async (req, res) => {
     try {
       const userData = insertUserSchema.parse(req.body);
-      
-      // Check if user already exists
-      const existingUser = await storage.getUserByEmail(userData.email);
-      if (existingUser) {
-        return res.status(400).json({ message: "이미 등록된 이메일입니다." });
-      }
-
       const user = await storage.createUser(userData);
-      res.json({ id: user.id, email: user.email });
+      res.json({ 
+        id: user.id, 
+        company: user.company, 
+        team: user.team,
+        product: user.product,
+        competitors: user.competitors
+      });
     } catch (error) {
       console.error("Registration error:", error);
-      res.status(400).json({ message: "회원가입 중 오류가 발생했습니다." });
+      res.status(400).json({ message: "정보 저장 중 오류가 발생했습니다." });
     }
   });
 

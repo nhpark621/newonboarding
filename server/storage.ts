@@ -3,7 +3,6 @@ import { randomUUID } from "crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
-  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   createOnboardingSession(session: InsertOnboardingSession): Promise<OnboardingSession>;
   getOnboardingSessionByUserId(userId: string): Promise<OnboardingSession | undefined>;
@@ -22,18 +21,12 @@ export class MemStorage implements IStorage {
     return this.users.get(id);
   }
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email === email,
-    );
-  }
-
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
     const user: User = { 
       ...insertUser, 
       id,
-      product: insertUser.product || null,
+      competitors: insertUser.competitors || null,
       createdAt: new Date()
     };
     this.users.set(id, user);

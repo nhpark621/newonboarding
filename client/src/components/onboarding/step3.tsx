@@ -358,7 +358,7 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                     type="submit"
                     data-testid="button-submit-form"
                     className="w-full py-4 text-lg font-semibold"
-                    disabled={registerMutation.isPending || !form.formState.isValid}
+                    disabled={registerMutation.isPending || !form.watch("company") || !form.watch("team") || !form.watch("product")}
                   >
                     {registerMutation.isPending ? (
                       <>

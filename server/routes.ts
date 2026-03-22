@@ -317,6 +317,60 @@ JSON 형태로 응답해주세요: { "recommended_competitors": ["경쟁사1", "
     }
   });
 
+  // Debug: step-by-step product discovery
+  app.post("/api/debug/discover-steps", async (req, res) => {
+    const { competitorName } = req.body;
+    const debug: any = { steps: [] };
+    try {
+      // Step 1: Search Naver
+      const searchUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 브랜드스토어")}`;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      const searchRes = await fetch(searchUrl, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          "Accept-Language": "ko-KR,ko;q=0.9",
+        },
+      });
+      clearTimeout(timeout);
+      const searchHtml = await searchRes.text();
+      const brandMatches = searchHtml.match(/(?:https?:)?\/?\/?(?:brand|smartstore)\.naver\.com\/([a-zA-Z][a-zA-Z0-9_-]{1,30})/g) || [];
+      debug.steps.push({ step: "1_naver_search", status: searchRes.status, htmlLen: searchHtml.length, brandMatches });
+
+      // Step 2: Find slug
+      const slugRegex = /(?:brand|smartstore)\.naver\.com\/([a-zA-Z][a-zA-Z0-9_-]{1,30})/;
+      const slugMatch = brandMatches.find(m => {
+        const s = m.match(slugRegex);
+        return s && !["search","gate","login","help","category","best"].includes(s[1]);
+      });
+      const slug = slugMatch?.match(slugRegex)?.[1] || "";
+      const brandStoreUrl = slug ? `https://brand.naver.com/${slug}` : "";
+      debug.steps.push({ step: "2_slug_found", slug, brandStoreUrl });
+
+      // Step 3: Fetch brand store
+      if (brandStoreUrl) {
+        const ctrl2 = new AbortController();
+        const t2 = setTimeout(() => ctrl2.abort(), 10000);
+        const storeRes = await fetch(brandStoreUrl, {
+          signal: ctrl2.signal,
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "Accept-Language": "ko-KR,ko;q=0.9" },
+        });
+        clearTimeout(t2);
+        const storeHtml = await storeRes.text();
+        const hasNextData = storeHtml.includes("__NEXT_DATA__");
+        const productNameMatches = storeHtml.match(/"productName"\s*:\s*"[^"]+"/g)?.slice(0, 5) || [];
+        const nameMatches = storeHtml.match(/"name"\s*:\s*"[^"]{2,50}"/g)?.slice(0, 5) || [];
+        debug.steps.push({ step: "3_brand_store", status: storeRes.status, htmlLen: storeHtml.length, hasNextData, productNameMatches, nameMatches });
+      }
+
+      res.json(debug);
+    } catch (error: any) {
+      debug.error = error?.message;
+      res.json(debug);
+    }
+  });
+
   // Price monitor: save selected products for monitoring
   app.post("/api/price-monitor/save-selections", async (req, res) => {
     try {

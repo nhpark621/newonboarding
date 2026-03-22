@@ -114,9 +114,13 @@ JSON 형태로 응답해주세요: { "recommended_competitors": ["경쟁사1", "
       }
 
       res.json(result);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Competitor recommendation error:", error);
-      res.json({ recommended_competitors: [] });
+      res.json({
+        recommended_competitors: [],
+        debug_error: error?.message || "Unknown error",
+        debug_api_key_set: !!(process.env.OPENAI_API_KEY),
+      });
     }
   });
 

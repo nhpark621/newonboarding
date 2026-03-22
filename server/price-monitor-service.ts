@@ -34,39 +34,64 @@ async function fetchPage(url: string): Promise<string | null> {
   }
 }
 
-// Strategy 1: Search Naver to find official website
-async function findOfficialSiteViaNaver(competitorName: string): Promise<string[]> {
-  const urls: string[] = [];
-  const searchUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 공식몰")}`;
-
-  const html = await fetchPage(searchUrl);
-  if (!html) return urls;
-
-  // Extract URLs from Naver search results
-  const linkRegex = /href="(https?:\/\/[^"]+)"/gi;
-  let match;
+// Strategy 1: Search Naver to find official website and brand store
+async function findSitesViaNaver(competitorName: string): Promise<{ officialUrls: string[]; brandStoreUrls: string[] }> {
+  const officialUrls: string[] = [];
+  const brandStoreUrls: string[] = [];
   const seen = new Set<string>();
 
-  while ((match = linkRegex.exec(html)) !== null) {
-    const href = match[1];
-    // Filter: skip Naver internal links, ads, etc.
-    if (
-      href.includes("naver.com") ||
-      href.includes("naver.net") ||
-      href.includes("navercorp") ||
-      href.includes("google.") ||
-      href.includes("facebook.") ||
-      href.includes("instagram.")
-    ) continue;
-
-    // Keep only likely official site URLs
-    if (!seen.has(href) && href.startsWith("https://")) {
+  // Search 1: Find official site
+  const searchUrl1 = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 공식몰")}`;
+  const html1 = await fetchPage(searchUrl1);
+  if (html1) {
+    const linkRegex = /href="(https?:\/\/[^"]+)"/gi;
+    let match;
+    while ((match = linkRegex.exec(html1)) !== null) {
+      const href = match[1];
+      if (seen.has(href)) continue;
       seen.add(href);
-      urls.push(href);
+
+      // Collect brand store URLs separately
+      if (href.includes("brand.naver.com/") || href.includes("smartstore.naver.com/")) {
+        const path = href.replace(/https?:\/\/(brand|smartstore)\.naver\.com\/?/, "");
+        if (path && path.length > 1 && !path.startsWith("?")) {
+          brandStoreUrls.push(href);
+        }
+        continue;
+      }
+
+      // Skip other Naver/social links
+      if (
+        href.includes("naver.com") || href.includes("naver.net") ||
+        href.includes("google.") || href.includes("facebook.") ||
+        href.includes("instagram.") || href.includes("youtube.")
+      ) continue;
+
+      if (href.startsWith("https://")) {
+        officialUrls.push(href);
+      }
     }
   }
 
-  return urls.slice(0, 5);
+  // Search 2: Find brand store specifically
+  const searchUrl2 = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 네이버 브랜드스토어")}`;
+  const html2 = await fetchPage(searchUrl2);
+  if (html2) {
+    const brandRegex = /href="(https?:\/\/(?:brand|smartstore)\.naver\.com\/[a-zA-Z0-9_-]+[^"]*)"/gi;
+    let match;
+    while ((match = brandRegex.exec(html2)) !== null) {
+      const href = match[1].split("?")[0]; // Remove query params
+      if (!seen.has(href)) {
+        seen.add(href);
+        brandStoreUrls.push(href);
+      }
+    }
+  }
+
+  return {
+    officialUrls: officialUrls.slice(0, 5),
+    brandStoreUrls: brandStoreUrls.slice(0, 3),
+  };
 }
 
 // Strategy 2: Generate Naver brand store URLs
@@ -346,15 +371,16 @@ export async function discoverProducts(competitorName: string): Promise<{
   // Collect all candidate URLs
   const candidateUrls: string[] = [];
 
-  // 1. Naver brand store / smartstore (most reliable for Korean brands)
+  // 1. Search Naver to find real URLs (most reliable)
+  const naverResults = await findSitesViaNaver(competitorName);
+  candidateUrls.push(...naverResults.brandStoreUrls);
+  candidateUrls.push(...naverResults.officialUrls);
+
+  // 2. Naver brand store / smartstore guesses
   candidateUrls.push(...generateNaverBrandStoreUrls(competitorName));
 
-  // 2. Common domain patterns
+  // 3. Common domain patterns
   candidateUrls.push(...generateDomainCandidates(competitorName));
-
-  // 3. Search Naver for official site
-  const naverSearchResults = await findOfficialSiteViaNaver(competitorName);
-  candidateUrls.push(...naverSearchResults);
 
   // Probe URLs and fetch valid ones
   for (const url of candidateUrls) {

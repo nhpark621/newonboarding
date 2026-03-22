@@ -12,7 +12,7 @@ export interface DiscoveredProduct {
   source?: string;
 }
 
-// Fetch page HTML with browser-like headers
+// Fetch with browser-like headers
 async function fetchPage(url: string): Promise<string | null> {
   try {
     const controller = new AbortController();
@@ -22,8 +22,9 @@ async function fetchPage(url: string): Promise<string | null> {
       redirect: "follow",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,application/json,*/*;q=0.8",
         "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Referer": "https://search.naver.com/",
       },
     });
     clearTimeout(timeout);
@@ -34,166 +35,138 @@ async function fetchPage(url: string): Promise<string | null> {
   }
 }
 
-// Strategy 1: Search Naver to find official website and brand store
-async function findSitesViaNaver(competitorName: string): Promise<{ officialUrls: string[]; brandStoreUrls: string[] }> {
-  const officialUrls: string[] = [];
-  const brandStoreUrls: string[] = [];
-  const seen = new Set<string>();
-
-  // Search 1: Find official site
-  const searchUrl1 = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 공식몰")}`;
-  const html1 = await fetchPage(searchUrl1);
-  if (html1) {
-    const linkRegex = /href="(https?:\/\/[^"]+)"/gi;
-    let match;
-    while ((match = linkRegex.exec(html1)) !== null) {
-      const href = match[1];
-      if (seen.has(href)) continue;
-      seen.add(href);
-
-      // Collect brand store URLs separately
-      if (href.includes("brand.naver.com/") || href.includes("smartstore.naver.com/")) {
-        const path = href.replace(/https?:\/\/(brand|smartstore)\.naver\.com\/?/, "");
-        if (path && path.length > 1 && !path.startsWith("?")) {
-          brandStoreUrls.push(href);
-        }
-        continue;
-      }
-
-      // Skip other Naver/social links
-      if (
-        href.includes("naver.com") || href.includes("naver.net") ||
-        href.includes("google.") || href.includes("facebook.") ||
-        href.includes("instagram.") || href.includes("youtube.")
-      ) continue;
-
-      if (href.startsWith("https://")) {
-        officialUrls.push(href);
-      }
-    }
-  }
-
-  // Search 2: Find brand store specifically
-  const searchUrl2 = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 네이버 브랜드스토어")}`;
-  const html2 = await fetchPage(searchUrl2);
-  if (html2) {
-    const brandRegex = /href="(https?:\/\/(?:brand|smartstore)\.naver\.com\/[a-zA-Z0-9_-]+[^"]*)"/gi;
-    let match;
-    while ((match = brandRegex.exec(html2)) !== null) {
-      const href = match[1].split("?")[0]; // Remove query params
-      if (!seen.has(href)) {
-        seen.add(href);
-        brandStoreUrls.push(href);
-      }
-    }
-  }
-
-  return {
-    officialUrls: officialUrls.slice(0, 5),
-    brandStoreUrls: brandStoreUrls.slice(0, 3),
-  };
-}
-
-// Strategy 2: Generate Naver brand store URLs
-function generateNaverBrandStoreUrls(competitorName: string): string[] {
-  const sanitized = competitorName.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const sanitizedNoSpace = competitorName.replace(/\s+/g, "").toLowerCase();
-
-  return [
-    `https://brand.naver.com/${sanitized}`,
-    `https://brand.naver.com/${sanitizedNoSpace}`,
-    `https://smartstore.naver.com/${sanitized}`,
-    `https://smartstore.naver.com/${sanitizedNoSpace}`,
-  ];
-}
-
-// Strategy 3: Generate common domain candidates
-function generateDomainCandidates(competitorName: string): string[] {
-  const sanitized = competitorName.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return [
-    `https://www.${sanitized}.co.kr`,
-    `https://www.${sanitized}.com`,
-    `https://${sanitized}.co.kr`,
-    `https://${sanitized}.com`,
-    `https://www.${sanitized}.com/kr`,
-    `https://shop.${sanitized}.com`,
-    `https://store.${sanitized}.com`,
-  ];
-}
-
-// Probe if a URL is valid (returns HTML)
-async function probeUrl(url: string): Promise<boolean> {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const response = await fetch(url, {
-      method: "HEAD",
-      signal: controller.signal,
-      redirect: "follow",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      },
-    });
-    clearTimeout(timeout);
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
-// Extract products from Naver brand store / smartstore HTML
-function extractNaverStoreProducts(html: string, baseUrl: string): DiscoveredProduct[] {
+// Strategy 1: Naver Shopping Search API - most reliable for product discovery
+async function searchNaverShopping(competitorName: string): Promise<DiscoveredProduct[]> {
   const products: DiscoveredProduct[] = [];
   const seen = new Set<string>();
 
-  // Look for __NEXT_DATA__ (Naver uses Next.js)
+  // Try Naver Shopping search page (contains embedded data)
+  const searchUrl = `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(competitorName)}&origQuery=${encodeURIComponent(competitorName)}&pagingIndex=1&pagingSize=20&sort=rel`;
+  const html = await fetchPage(searchUrl);
+  if (!html) return products;
+
+  // Extract product data from embedded JSON in the page
+  // Naver Shopping embeds product data in script tags
+  const patterns = [
+    /"productTitle"\s*:\s*"([^"]+)"[\s\S]*?"price"\s*:\s*"?(\d+)"?/g,
+    /"name"\s*:\s*"([^"]+)"[\s\S]*?"price"\s*:\s*"?(\d+)"?/g,
+    /"productName"\s*:\s*"([^"]+)"[\s\S]*?"salePrice"\s*:\s*"?(\d+)"?/g,
+  ];
+
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(html)) !== null) {
+      const name = match[1].replace(/\\u[\dA-Fa-f]{4}/g, (m) =>
+        String.fromCharCode(parseInt(m.slice(2), 16))
+      ).replace(/<[^>]+>/g, "").trim();
+      const price = parseInt(match[2], 10);
+
+      if (name && !seen.has(name) && name.length > 1 && price > 0) {
+        seen.add(name);
+        products.push({
+          name,
+          price: `${price.toLocaleString()}원`,
+          url: searchUrl,
+          source: "naver_shopping",
+        });
+      }
+    }
+    if (products.length > 0) break;
+  }
+
+  // Fallback: extract from link text patterns
+  if (products.length === 0) {
+    const titlePriceRegex = /class="[^"]*product[_-]?(?:title|name|link)[^"]*"[^>]*>([^<]{3,80})<[\s\S]*?(\d{1,3}(?:,\d{3})+)/g;
+    let match;
+    while ((match = titlePriceRegex.exec(html)) !== null) {
+      const name = match[1].replace(/<[^>]+>/g, "").trim();
+      const price = match[2];
+      if (name && !seen.has(name)) {
+        seen.add(name);
+        products.push({
+          name,
+          price: `${price}원`,
+          url: searchUrl,
+          source: "naver_shopping",
+        });
+      }
+    }
+  }
+
+  return products.slice(0, 20);
+}
+
+// Strategy 2: Find and scrape Naver brand store
+async function findNaverBrandStore(competitorName: string): Promise<{ url: string; products: DiscoveredProduct[] }> {
+  const products: DiscoveredProduct[] = [];
+  const seen = new Set<string>();
+
+  // Search for brand store URL in Naver
+  const searchUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 브랜드스토어")}`;
+  const searchHtml = await fetchPage(searchUrl);
+
+  let brandStoreUrl = "";
+
+  if (searchHtml) {
+    // Find brand.naver.com or smartstore.naver.com URL with a valid slug
+    const brandRegex = /https?:\/\/(?:brand|smartstore)\.naver\.com\/([a-zA-Z][a-zA-Z0-9_-]{1,30})/g;
+    let match;
+    while ((match = brandRegex.exec(searchHtml)) !== null) {
+      const slug = match[1];
+      // Skip generic/internal paths
+      if (["search", "gate", "login", "help", "category", "best"].includes(slug)) continue;
+      brandStoreUrl = match[0];
+      break;
+    }
+  }
+
+  if (!brandStoreUrl) return { url: "", products: [] };
+
+  // Fetch brand store page
+  const html = await fetchPage(brandStoreUrl);
+  if (!html) return { url: brandStoreUrl, products: [] };
+
+  // Extract from __NEXT_DATA__
   const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
   if (nextDataMatch) {
     try {
       const data = JSON.parse(nextDataMatch[1]);
-      // Navigate through Next.js data structure to find products
-      const pageProps = data?.props?.pageProps;
-      if (pageProps) {
-        const extractFromObj = (obj: any) => {
-          if (!obj || typeof obj !== "object") return;
-          // Look for product-like objects
-          if (obj.name && (obj.price || obj.salePrice || obj.discountedPrice)) {
-            const name = String(obj.name);
-            if (!seen.has(name) && name.length > 1 && name.length < 100) {
+      const findProducts = (obj: any, depth: number): void => {
+        if (!obj || typeof obj !== "object" || depth > 8) return;
+        if (obj.name && typeof obj.name === "string" && obj.name.length > 1 && obj.name.length < 100) {
+          const hasPrice = obj.price || obj.salePrice || obj.discountedPrice || obj.channelProductPrice;
+          if (hasPrice) {
+            const name = obj.name;
+            if (!seen.has(name)) {
               seen.add(name);
-              const price = obj.salePrice || obj.discountedPrice || obj.price || "";
+              const price = obj.salePrice || obj.discountedPrice || obj.channelProductPrice || obj.price;
               products.push({
                 name,
-                price: typeof price === "number" ? `${price.toLocaleString()}원` : String(price),
-                url: obj.url || obj.productUrl || baseUrl,
-                imageUrl: obj.imageUrl || obj.image || obj.thumbnailUrl || undefined,
-                source: "naver",
+                price: typeof price === "number" ? `${price.toLocaleString()}원` : `${price}원`,
+                url: obj.url || obj.productUrl || `${brandStoreUrl}/products/${obj.id || obj.productNo || ""}`,
+                imageUrl: obj.imageUrl || obj.image || obj.representImage?.url || obj.thumbnailUrl || undefined,
+                source: "naver_brand_store",
               });
             }
           }
-          // Recurse
-          if (Array.isArray(obj)) {
-            obj.forEach(extractFromObj);
-          } else {
-            Object.values(obj).forEach(extractFromObj);
-          }
-        };
-        extractFromObj(pageProps);
-      }
-    } catch {
-      // Skip JSON parse error
-    }
+        }
+        if (Array.isArray(obj)) {
+          for (const item of obj) findProducts(item, depth + 1);
+        } else {
+          for (const val of Object.values(obj)) findProducts(val, depth + 1);
+        }
+      };
+      findProducts(data, 0);
+    } catch { /* skip */ }
   }
 
-  // Fallback: look for product patterns in HTML
+  // Fallback: embedded JSON product patterns
   if (products.length === 0) {
-    // Naver store product card patterns
-    const productPatterns = [
+    const jsonPatterns = [
       /"productName"\s*:\s*"([^"]+)"[\s\S]*?"salePrice"\s*:\s*(\d+)/g,
-      /"name"\s*:\s*"([^"]+)"[\s\S]*?"price"\s*:\s*(\d+)/g,
+      /"name"\s*:\s*"([^"]+)"[\s\S]*?"channelProductPrice"\s*:\s*(\d+)/g,
     ];
-
-    for (const pattern of productPatterns) {
+    for (const pattern of jsonPatterns) {
       let m;
       while ((m = pattern.exec(html)) !== null) {
         const name = m[1];
@@ -203,23 +176,54 @@ function extractNaverStoreProducts(html: string, baseUrl: string): DiscoveredPro
           products.push({
             name,
             price: `${price.toLocaleString()}원`,
-            url: baseUrl,
-            source: "naver",
+            url: brandStoreUrl,
+            source: "naver_brand_store",
           });
         }
       }
+      if (products.length > 0) break;
     }
   }
 
-  return products;
+  return { url: brandStoreUrl, products: products.slice(0, 20) };
 }
 
-// Extract products from general e-commerce HTML
-function extractProductsFromHtml(html: string, baseUrl: string): DiscoveredProduct[] {
+// Strategy 3: Scrape official website
+async function scrapeOfficialSite(competitorName: string): Promise<{ url: string; products: DiscoveredProduct[] }> {
   const products: DiscoveredProduct[] = [];
   const seen = new Set<string>();
 
-  // Strategy 1: JSON-LD structured data
+  // Search Naver for official site
+  const searchUrl = `https://search.naver.com/search.naver?query=${encodeURIComponent(competitorName + " 공식 홈페이지")}`;
+  const searchHtml = await fetchPage(searchUrl);
+
+  let officialUrl = "";
+
+  if (searchHtml) {
+    // Find non-Naver, non-social HTTPS links
+    const linkRegex = /href="(https:\/\/(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\/[^"]*)?)"[^>]*>/g;
+    let match;
+    while ((match = linkRegex.exec(searchHtml)) !== null) {
+      const href = match[1];
+      if (
+        href.includes("naver.") || href.includes("google.") ||
+        href.includes("facebook.") || href.includes("instagram.") ||
+        href.includes("youtube.") || href.includes("twitter.") ||
+        href.includes("pstatic.net") || href.includes("blogspot") ||
+        href.includes("tistory") || href.includes("wikipedia")
+      ) continue;
+      officialUrl = href.split("?")[0];
+      break;
+    }
+  }
+
+  if (!officialUrl) return { url: "", products: [] };
+
+  // Fetch official site
+  const html = await fetchPage(officialUrl);
+  if (!html || html.length < 500) return { url: officialUrl, products: [] };
+
+  // Extract from JSON-LD
   const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
   let jsonLdMatch;
   while ((jsonLdMatch = jsonLdRegex.exec(html)) !== null) {
@@ -228,16 +232,14 @@ function extractProductsFromHtml(html: string, baseUrl: string): DiscoveredProdu
       const items = data["@type"] === "Product" ? [data] :
         data["@type"] === "ItemList" ? (data.itemListElement || []).map((e: any) => e.item || e) :
         data["@graph"]?.filter((i: any) => i["@type"] === "Product") || [];
-
       for (const item of items) {
-        const name = item.name;
-        if (name && !seen.has(name)) {
-          seen.add(name);
+        if (item.name && !seen.has(item.name)) {
+          seen.add(item.name);
           const price = item.offers?.price || item.offers?.lowPrice || "";
           products.push({
-            name,
+            name: item.name,
             price: price ? `${Number(price).toLocaleString()}원` : "",
-            url: item.url || baseUrl,
+            url: item.url || officialUrl,
             imageUrl: typeof item.image === "string" ? item.image : item.image?.[0] || undefined,
             source: "official",
           });
@@ -246,116 +248,7 @@ function extractProductsFromHtml(html: string, baseUrl: string): DiscoveredProdu
     } catch { /* skip */ }
   }
 
-  // Strategy 2: Look for embedded product JSON data
-  const jsonPatterns = [
-    /"products"\s*:\s*(\[[\s\S]*?\])/g,
-    /"items"\s*:\s*(\[[\s\S]*?\])/g,
-  ];
-  for (const pattern of jsonPatterns) {
-    let m;
-    while ((m = pattern.exec(html)) !== null) {
-      try {
-        const items = JSON.parse(m[1]);
-        for (const item of items) {
-          const name = item.name || item.title || item.productName;
-          if (name && !seen.has(name) && name.length > 1) {
-            seen.add(name);
-            const price = item.price || item.salePrice || item.discountPrice || "";
-            products.push({
-              name,
-              price: typeof price === "number" ? `${price.toLocaleString()}원` : String(price),
-              url: item.url || item.link || baseUrl,
-              imageUrl: item.image || item.imageUrl || item.thumbnail || undefined,
-              source: "official",
-            });
-          }
-        }
-      } catch { /* skip */ }
-    }
-  }
-
-  // Strategy 3: HTML product card patterns
-  if (products.length === 0) {
-    const productBlockRegex = /<(?:div|li|article|a)[^>]*class="[^"]*(?:product|item|goods)[^"]*"[^>]*>([\s\S]*?)(?=<\/(?:div|li|article|a)>)/gi;
-    let blockMatch;
-    while ((blockMatch = productBlockRegex.exec(html)) !== null) {
-      const block = blockMatch[1];
-      const nameMatch = block.match(/<(?:h[2-5]|a|span|p)[^>]*>([^<]{2,80})<\/(?:h[2-5]|a|span|p)>/i);
-      const priceMatch = block.match(/([\d,]+)\s*원/);
-      const urlMatch = block.match(/href=["']([^"'#]+)["']/i);
-
-      if (nameMatch) {
-        const name = nameMatch[1].trim();
-        if (!seen.has(name) && name.length >= 2) {
-          seen.add(name);
-          let productUrl = baseUrl;
-          if (urlMatch) {
-            try { productUrl = new URL(urlMatch[1], baseUrl).toString(); } catch { /* keep base */ }
-          }
-          products.push({
-            name,
-            price: priceMatch ? priceMatch[0] : "",
-            url: productUrl,
-            source: "official",
-          });
-        }
-      }
-    }
-  }
-
-  return products;
-}
-
-// Extract text for GPT analysis
-function extractTextContent(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<nav[\s\S]*?<\/nav>/gi, "")
-    .replace(/<footer[\s\S]*?<\/footer>/gi, "")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 5000);
-}
-
-// Optional: Use GPT to extract products from text (fallback)
-async function extractProductsWithGPT(
-  textContent: string,
-  sourceUrl: string,
-  competitorName: string
-): Promise<DiscoveredProduct[]> {
-  try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "웹페이지 텍스트에서 제품명과 가격을 추출하세요.",
-        },
-        {
-          role: "user",
-          content: `"${competitorName}" 스토어 페이지(${sourceUrl})의 텍스트에서 제품명과 가격을 추출해주세요.\n\n${textContent}\n\nJSON: {"products": [{"name": "제품명", "price": "가격"}]}`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      max_tokens: 1500,
-    });
-
-    const result = JSON.parse(response.choices[0].message.content || "{}");
-    return (result.products || [])
-      .filter((p: any) => p.name)
-      .map((p: any) => ({
-        name: p.name,
-        price: p.price || "",
-        url: sourceUrl,
-        source: "gpt",
-      }));
-  } catch {
-    return [];
-  }
+  return { url: officialUrl, products: products.slice(0, 20) };
 }
 
 // Main function: discover products from a competitor
@@ -367,65 +260,51 @@ export async function discoverProducts(competitorName: string): Promise<{
   const allProducts: DiscoveredProduct[] = [];
   const seen = new Set<string>();
   let baseUrl = "";
+  let platform = "unknown";
 
-  // Collect all candidate URLs
-  const candidateUrls: string[] = [];
-
-  // 1. Search Naver to find real URLs (most reliable)
-  const naverResults = await findSitesViaNaver(competitorName);
-  candidateUrls.push(...naverResults.brandStoreUrls);
-  candidateUrls.push(...naverResults.officialUrls);
-
-  // 2. Naver brand store / smartstore guesses
-  candidateUrls.push(...generateNaverBrandStoreUrls(competitorName));
-
-  // 3. Common domain patterns
-  candidateUrls.push(...generateDomainCandidates(competitorName));
-
-  // Probe URLs and fetch valid ones
-  for (const url of candidateUrls) {
-    if (allProducts.length >= 15) break;
-
-    const isValid = await probeUrl(url);
-    if (!isValid) continue;
-
-    if (!baseUrl) baseUrl = url;
-
-    const html = await fetchPage(url);
-    if (!html || html.length < 500) continue;
-
-    // Try Naver store extraction first
-    let products: DiscoveredProduct[] = [];
-    if (url.includes("brand.naver.com") || url.includes("smartstore.naver.com")) {
-      products = extractNaverStoreProducts(html, url);
-    }
-
-    // Try general HTML extraction
-    if (products.length === 0) {
-      products = extractProductsFromHtml(html, url);
-    }
-
-    // Try GPT extraction as last resort
-    if (products.length === 0) {
-      const textContent = extractTextContent(html);
-      if (textContent.length > 100) {
-        products = await extractProductsWithGPT(textContent, url, competitorName);
-      }
-    }
-
-    // Add to results
-    for (const product of products) {
-      if (!seen.has(product.name)) {
-        seen.add(product.name);
-        allProducts.push(product);
+  // 1. Try Naver brand store first (most structured data)
+  const brandStore = await findNaverBrandStore(competitorName);
+  if (brandStore.products.length > 0) {
+    baseUrl = brandStore.url;
+    platform = "naver_brand_store";
+    for (const p of brandStore.products) {
+      if (!seen.has(p.name)) {
+        seen.add(p.name);
+        allProducts.push(p);
       }
     }
   }
 
-  // Determine platform
-  let platform = "official";
-  if (baseUrl.includes("brand.naver.com") || baseUrl.includes("smartstore.naver.com")) {
-    platform = "naver";
+  // 2. Try Naver Shopping search
+  if (allProducts.length < 5) {
+    const shoppingProducts = await searchNaverShopping(competitorName);
+    for (const p of shoppingProducts) {
+      if (!seen.has(p.name)) {
+        seen.add(p.name);
+        allProducts.push(p);
+      }
+    }
+    if (!baseUrl && shoppingProducts.length > 0) {
+      baseUrl = `https://search.shopping.naver.com/search/all?query=${encodeURIComponent(competitorName)}`;
+      platform = "naver_shopping";
+    }
+  }
+
+  // 3. Try official site
+  if (allProducts.length < 5) {
+    const official = await scrapeOfficialSite(competitorName);
+    if (official.products.length > 0) {
+      for (const p of official.products) {
+        if (!seen.has(p.name)) {
+          seen.add(p.name);
+          allProducts.push(p);
+        }
+      }
+      if (!baseUrl) {
+        baseUrl = official.url;
+        platform = "official";
+      }
+    }
   }
 
   return {

@@ -4,6 +4,9 @@ import { storage } from "./storage";
 import { insertUserSchema, serviceRecommendationSchema, insertOnboardingSessionSchema } from "@shared/schema";
 import OpenAI from "openai";
 import { generateDomainCandidates, probeDomain, discoverEventRoutes, mockPickCompetitors, scoreEventRoute } from "./brandstore-service";
+import { discoverProducts } from "./price-monitor-service";
+import { fetchAllProductPrices } from "./price-scraper-service";
+import { discoverCompetitorEvents } from "./event-monitor-service";
 import { z } from "zod";
 
 const openai = new OpenAI({ 
@@ -21,13 +24,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 사용자가 다음과 같은 고민을 입력했습니다:
 "${userInput}"
 
-이 고민과 관련해 추천할 만한 경쟁사 분석 서비스 항목 3~4가지를 다음 6가지 중에서만 선별해 주세요:
+이 고민과 관련해 추천할 만한 경쟁사 분석 서비스 항목 3~4가지를 다음 7가지 중에서만 선별해 주세요:
 - 뉴스·보도자료 분석
-- 신제품·서비스 출시  
+- 신제품·서비스 출시
 - 인재 영입
 - 광고 분석
 - SNS 콘텐츠
 - 이벤트 모니터링
+- 경쟁사 제품 가격 모니터링
 
 JSON 형태로 응답해주세요: { "recommended_services": ["서비스1", "서비스2", "서비스3"] }
 `;
@@ -62,6 +66,57 @@ JSON 형태로 응답해주세요: { "recommended_services": ["서비스1", "서
       res.json({
         recommended_services: ["뉴스·보도자료 분석", "신제품·서비스 출시", "광고 분석"]
       });
+    }
+  });
+
+  // Competitor recommendation endpoint
+  app.post("/api/recommend-competitors", async (req, res) => {
+    try {
+      const schema = z.object({
+        company: z.string().min(1),
+        team: z.string().min(1),
+        product: z.string().min(1),
+      });
+      const { company, team, product } = schema.parse(req.body);
+
+      const prompt = `
+다음은 한 기업의 정보입니다:
+- 회사명: "${company}"
+- 소속 팀: "${team}"
+- 담당 제품/서비스: "${product}"
+
+이 기업이 모니터링해야 할 주요 경쟁사를 3~5개 추천해주세요.
+같은 산업/시장에서 직접적으로 경쟁하는 실제 기업명을 추천해주세요.
+
+JSON 형태로 응답해주세요: { "recommended_competitors": ["경쟁사1", "경쟁사2", "경쟁사3"] }
+`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "당신은 B2B 경쟁사 분석 전문가입니다. 기업 정보를 바탕으로 해당 시장의 주요 경쟁사를 추천합니다. 실제 존재하는 기업명만 추천하세요."
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 300,
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || "{}");
+
+      if (!result.recommended_competitors || !Array.isArray(result.recommended_competitors)) {
+        result.recommended_competitors = [];
+      }
+
+      res.json(result);
+    } catch (error) {
+      console.error("Competitor recommendation error:", error);
+      res.json({ recommended_competitors: [] });
     }
   });
 
@@ -207,6 +262,173 @@ JSON 형태로 응답해주세요: { "recommended_services": ["서비스1", "서
       res.status(500).json({ 
         message: "선택 항목 저장 중 오류가 발생했습니다."
       });
+    }
+  });
+
+  // Price monitor: discover products from competitor website
+  app.post("/api/price-monitor/discover-products", async (req, res) => {
+    try {
+      const schema = z.object({
+        competitorName: z.string().min(1),
+      });
+      const { competitorName } = schema.parse(req.body);
+      const result = await discoverProducts(competitorName);
+      res.json(result);
+    } catch (error) {
+      console.error("Product discovery error:", error);
+      res.status(500).json({
+        products: [],
+        baseUrl: "",
+        platform: "unknown",
+        message: "제품 탐색 중 오류가 발생했습니다.",
+      });
+    }
+  });
+
+  // Price monitor: save selected products for monitoring
+  app.post("/api/price-monitor/save-selections", async (req, res) => {
+    try {
+      const schema = z.object({
+        products: z.array(z.object({
+          competitorName: z.string(),
+          productName: z.string(),
+          productUrl: z.string(),
+          currentPrice: z.string().optional(),
+          imageUrl: z.string().optional(),
+        })),
+      });
+      const { products } = schema.parse(req.body);
+
+      const saved = [];
+      for (const product of products) {
+        const monitored = await storage.createMonitoredProduct({
+          competitorName: product.competitorName,
+          productName: product.productName,
+          productUrl: product.productUrl,
+          currentPrice: product.currentPrice,
+          imageUrl: product.imageUrl,
+        });
+        saved.push(monitored);
+      }
+
+      res.json({ products: saved });
+    } catch (error) {
+      console.error("Product save error:", error);
+      res.status(500).json({ message: "제품 저장 중 오류가 발생했습니다." });
+    }
+  });
+
+  // Event monitor: discover events for a competitor
+  app.post("/api/event-monitor/discover", async (req, res) => {
+    try {
+      const schema = z.object({
+        competitorName: z.string().min(1),
+      });
+      const { competitorName } = schema.parse(req.body);
+      const events = await discoverCompetitorEvents(competitorName);
+
+      // Save discovered events
+      const saved = [];
+      for (const event of events) {
+        const record = await storage.createDiscoveredEvent({
+          competitorName: event.competitorName,
+          source: event.source,
+          sourceUrl: event.sourceUrl,
+          eventType: event.eventType,
+          title: event.title,
+          description: event.description,
+          startDate: event.startDate || undefined,
+          endDate: event.endDate || undefined,
+          benefits: event.benefits,
+          imageUrl: event.imageUrl || undefined,
+        });
+        saved.push(record);
+      }
+
+      res.json({ events: saved });
+    } catch (error) {
+      console.error("Event discovery error:", error);
+      res.status(500).json({
+        events: [],
+        message: "이벤트 탐색 중 오류가 발생했습니다.",
+      });
+    }
+  });
+
+  // Event monitor: get all discovered events
+  app.get("/api/event-monitor/events", async (_req, res) => {
+    try {
+      const events = await storage.getDiscoveredEvents();
+      res.json({ events });
+    } catch (error) {
+      console.error("Get events error:", error);
+      res.status(500).json({ events: [] });
+    }
+  });
+
+  // Price monitor: get saved monitored products
+  app.get("/api/price-monitor/products", async (_req, res) => {
+    try {
+      const products = await storage.getMonitoredProducts();
+      res.json({ products });
+    } catch (error) {
+      console.error("Get monitored products error:", error);
+      res.status(500).json({ products: [] });
+    }
+  });
+
+  // Price monitor: fetch prices from 3 domains for monitored products
+  app.post("/api/price-monitor/fetch-prices", async (req, res) => {
+    try {
+      const schema = z.object({
+        products: z.array(z.object({
+          id: z.string(),
+          competitorName: z.string(),
+          productName: z.string(),
+          productUrl: z.string().optional(),
+        })),
+      });
+      const { products } = schema.parse(req.body);
+
+      const results = await fetchAllProductPrices(
+        products.map(p => ({
+          competitorName: p.competitorName,
+          productName: p.productName,
+          officialBaseUrl: p.productUrl,
+        }))
+      );
+
+      // Save price records for history
+      for (let i = 0; i < products.length; i++) {
+        const product = products[i];
+        const result = results[i];
+        if (result) {
+          for (const domainPrice of result.prices) {
+            await storage.createPriceRecord({
+              monitoredProductId: product.id,
+              domain: domainPrice.domain,
+              price: domainPrice.price || undefined,
+              productUrl: domainPrice.productUrl,
+            });
+          }
+        }
+      }
+
+      res.json({ results });
+    } catch (error) {
+      console.error("Fetch prices error:", error);
+      res.status(500).json({ message: "가격 조회 중 오류가 발생했습니다.", results: [] });
+    }
+  });
+
+  // Price monitor: get price history for a product
+  app.get("/api/price-monitor/history/:productId", async (req, res) => {
+    try {
+      const records = await storage.getPriceRecordsByProductId(req.params.productId);
+      res.json({ records });
+    } catch (error) {
+      console.error("Price history error:", error);
+      res.status(500).json({ records: [] });
     }
   });
 

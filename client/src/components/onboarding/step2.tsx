@@ -91,6 +91,18 @@ const SERVICE_DETAILS = {
     ),
     color: "bg-transparent",
     description: "경쟁사가 진행한 프로모션, 할인, 사은품 증정 등\n이벤트 현황을 정리해드려요\n혜택 구성과 타이밍까지 비교할 수 있어요!"
+  },
+  "경쟁사 제품 가격 모니터링": {
+    icon: (
+      <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="#F59E0B"/>
+          <text x="12" y="16" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">₩</text>
+        </svg>
+      </div>
+    ),
+    color: "bg-transparent",
+    description: "경쟁사 제품의 가격 변동을 실시간으로 추적하고\n할인·인상 이력을 한눈에 비교해드려요\n가격 전략 수립에 필요한 인사이트를 제공합니다!"
   }
 };
 

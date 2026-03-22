@@ -65,6 +65,68 @@ export const insertEventPageSchema = createInsertSchema(eventPages).pick({
   status: true,
 });
 
+export const monitoredProducts = pgTable("monitored_products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  competitorName: text("competitor_name").notNull(),
+  productName: text("product_name").notNull(),
+  productUrl: text("product_url").notNull(),
+  currentPrice: text("current_price"),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertMonitoredProductSchema = createInsertSchema(monitoredProducts).pick({
+  competitorName: true,
+  productName: true,
+  productUrl: true,
+  currentPrice: true,
+  imageUrl: true,
+});
+
+export const priceRecords = pgTable("price_records", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  monitoredProductId: varchar("monitored_product_id").references(() => monitoredProducts.id).notNull(),
+  domain: text("domain").notNull(), // "official" | "naver" | "coupang"
+  price: text("price"),
+  productUrl: text("product_url").notNull(),
+  fetchedAt: timestamp("fetched_at").defaultNow(),
+});
+
+export const insertPriceRecordSchema = createInsertSchema(priceRecords).pick({
+  monitoredProductId: true,
+  domain: true,
+  price: true,
+  productUrl: true,
+});
+
+export const discoveredEvents = pgTable("discovered_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  competitorName: text("competitor_name").notNull(),
+  source: text("source").notNull(), // "official" | "naver"
+  sourceUrl: text("source_url").notNull(),
+  eventType: text("event_type").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  startDate: text("start_date"),
+  endDate: text("end_date"),
+  benefits: jsonb("benefits"),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDiscoveredEventSchema = createInsertSchema(discoveredEvents).pick({
+  competitorName: true,
+  source: true,
+  sourceUrl: true,
+  eventType: true,
+  title: true,
+  description: true,
+  startDate: true,
+  endDate: true,
+  benefits: true,
+  imageUrl: true,
+});
+
 export const serviceRecommendationSchema = z.object({
   userInput: z.string().min(1),
 });
@@ -77,6 +139,12 @@ export type InsertChannel = z.infer<typeof insertChannelSchema>;
 export type Channel = typeof channels.$inferSelect;
 export type InsertEventPage = z.infer<typeof insertEventPageSchema>;
 export type EventPage = typeof eventPages.$inferSelect;
+export type InsertMonitoredProduct = z.infer<typeof insertMonitoredProductSchema>;
+export type MonitoredProduct = typeof monitoredProducts.$inferSelect;
+export type InsertPriceRecord = z.infer<typeof insertPriceRecordSchema>;
+export type PriceRecord = typeof priceRecords.$inferSelect;
+export type InsertDiscoveredEvent = z.infer<typeof insertDiscoveredEventSchema>;
+export type DiscoveredEvent = typeof discoveredEvents.$inferSelect;
 export type ServiceRecommendationRequest = z.infer<typeof serviceRecommendationSchema>;
 
 export interface ServiceRecommendationResponse {

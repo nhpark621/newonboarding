@@ -21,6 +21,7 @@ const formSchema = z.object({
   company: z.string().min(1, "회사명을 입력해주세요"),
   team: z.string().min(1, "팀을 선택해주세요"),
   product: z.string().min(1, "담당 제품/서비스를 입력해주세요"),
+  domain: z.string().optional(),
   competitors: z.array(z.string()).optional(),
 });
 
@@ -39,6 +40,7 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
       company: "",
       team: "",
       product: "",
+      domain: "",
       competitors: [],
     },
   });
@@ -101,6 +103,7 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
       company: userData.company,
       team: userData.team,
       product: userData.product,
+      domain: userData.domain,
       competitors: competitors,
       selectedServices: onboardingData.selectedServices,
     };
@@ -221,6 +224,27 @@ export default function Step3({ onboardingData, onComplete }: Step3Props) {
                       </div>
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Domain */}
+              <FormField
+                control={form.control}
+                name="domain"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>자사 도메인 <span className="text-muted-foreground font-normal">(선택사항)</span></FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="예: https://www.mycompany.com"
+                        {...field}
+                        data-testid="input-domain"
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      자사 공식 홈페이지 주소를 입력하면 경쟁사 분석 시 비교 기준으로 활용됩니다
+                    </p>
                   </FormItem>
                 )}
               />

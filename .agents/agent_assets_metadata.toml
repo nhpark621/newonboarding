@@ -12,3 +12,9 @@ id = "rmh5qC6effnkWYw4_-C0x"
 uri = "file://docs/product-overview.md"
 type = "text"
 title = "Product Overview — UNDERWATCH"
+
+[[outputs]]
+id = "JkoWnQGwRaLpS8LyRWBYR"
+uri = "file://docs/technical-architecture.md"
+type = "text"
+title = "Technical Architecture — UNDERWATCH"

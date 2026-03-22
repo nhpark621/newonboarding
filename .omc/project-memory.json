@@ -1,0 +1,329 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1774146405831,
+  "projectRoot": "C:\\project\\event\\newonboarding",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "express",
+        "version": "4.21.2",
+        "category": "backend"
+      },
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "esbuild",
+        "version": "0.25.0",
+        "category": "build"
+      },
+      {
+        "name": "vite",
+        "version": "5.4.19",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "NODE_ENV=development tsx server/index.ts",
+      "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+      "start": "NODE_ENV=production node dist/index.js",
+      "check": "tsc",
+      "db:push": "drizzle-kit push"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "attached_assets": {
+      "path": "attached_assets",
+      "purpose": null,
+      "fileCount": 22,
+      "lastAccessed": 1774146405792,
+      "keyFiles": [
+        "1아이콘_1754479209971.png",
+        "20250806_193211_1754476916037.png",
+        "2아이콘_1754479209969.png",
+        "3아이콘_1754479209970.png",
+        "api_spec_1754468269236.md"
+      ]
+    },
+    "client": {
+      "path": "client",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1774146405793,
+      "keyFiles": [
+        "index.html"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 2,
+      "lastAccessed": 1774146405804,
+      "keyFiles": [
+        "product-overview.md",
+        "technical-architecture.md"
+      ]
+    },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1774146405805,
+      "keyFiles": [
+        "brandstore-service.ts",
+        "index.ts",
+        "routes.ts",
+        "storage.ts",
+        "vite.ts"
+      ]
+    },
+    "shared": {
+      "path": "shared",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1774146405805,
+      "keyFiles": [
+        "schema.ts"
+      ]
+    },
+    "client\\src": {
+      "path": "client\\src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1774146405806,
+      "keyFiles": [
+        "App.tsx",
+        "index.css",
+        "main.tsx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "server\\storage.ts",
+      "accessCount": 20,
+      "lastAccessed": 1774154089711,
+      "type": "file"
+    },
+    {
+      "path": "server\\routes.ts",
+      "accessCount": 19,
+      "lastAccessed": 1774154079984,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\pages\\dashboard.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1774149828794,
+      "type": "file"
+    },
+    {
+      "path": "shared\\schema.ts",
+      "accessCount": 8,
+      "lastAccessed": 1774149657305,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\App.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1774149790221,
+      "type": "file"
+    },
+    {
+      "path": "server\\db-storage.ts",
+      "accessCount": 5,
+      "lastAccessed": 1774154096118,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\components\\onboarding\\step3.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1774147606958,
+      "type": "file"
+    },
+    {
+      "path": "api\\index.ts",
+      "accessCount": 4,
+      "lastAccessed": 1774153954330,
+      "type": "file"
+    },
+    {
+      "path": "server\\index.ts",
+      "accessCount": 4,
+      "lastAccessed": 1774154103941,
+      "type": "file"
+    },
+    {
+      "path": "vite.config.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774150537841,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 3,
+      "lastAccessed": 1774150566856,
+      "type": "file"
+    },
+    {
+      "path": "vercel.json",
+      "accessCount": 3,
+      "lastAccessed": 1774153759420,
+      "type": "file"
+    },
+    {
+      "path": "server\\db.ts",
+      "accessCount": 3,
+      "lastAccessed": 1774154091106,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\components\\onboarding\\step2.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1774146793302,
+      "type": "file"
+    },
+    {
+      "path": "server\\price-monitor-service.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774154098108,
+      "type": "file"
+    },
+    {
+      "path": "server\\price-scraper-service.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774154099676,
+      "type": "file"
+    },
+    {
+      "path": "server\\event-monitor-service.ts",
+      "accessCount": 2,
+      "lastAccessed": 1774154101408,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1774146455262,
+      "type": "directory"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 1,
+      "lastAccessed": 1774146457930,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\pages\\home.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774146461020,
+      "type": "file"
+    },
+    {
+      "path": "server\\brandstore-service.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774146461209,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\components\\onboarding\\step1.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774146465670,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\components\\onboarding\\progress-indicator.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774146467117,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\lib\\tracking.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774146468074,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\lib\\queryClient.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774146468401,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1774146468966,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\pages\\price-monitor.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774148373948,
+      "type": "file"
+    },
+    {
+      "path": "client\\src\\pages\\event-monitor.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1774149780571,
+      "type": "file"
+    },
+    {
+      "path": "drizzle.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1774150531337,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

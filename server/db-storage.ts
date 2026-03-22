@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { db } from "./db";
+import { db } from "./db.js";
 import {
   users, onboardingSessions, channels, eventPages,
   monitoredProducts, priceRecords, discoveredEvents,
@@ -10,8 +10,8 @@ import {
   type MonitoredProduct, type InsertMonitoredProduct,
   type PriceRecord, type InsertPriceRecord,
   type DiscoveredEvent, type InsertDiscoveredEvent,
-} from "../shared/schema";
-import type { IStorage } from "./storage";
+} from "../shared/schema.js";
+import type { IStorage } from "./storage.js";
 
 export class DbStorage implements IStorage {
   private get db() {

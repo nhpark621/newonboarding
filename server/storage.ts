@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type OnboardingSession, type InsertOnboardingSession, type Channel, type InsertChannel, type EventPage, type InsertEventPage, type MonitoredProduct, type InsertMonitoredProduct, type PriceRecord, type InsertPriceRecord, type DiscoveredEvent, type InsertDiscoveredEvent } from "../shared/schema";
+import { type User, type InsertUser, type OnboardingSession, type InsertOnboardingSession, type Channel, type InsertChannel, type EventPage, type InsertEventPage, type MonitoredProduct, type InsertMonitoredProduct, type PriceRecord, type InsertPriceRecord, type DiscoveredEvent, type InsertDiscoveredEvent } from "../shared/schema.js";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -173,7 +173,7 @@ export class MemStorage implements IStorage {
   }
 }
 
-import { db } from "./db";
-import { DbStorage } from "./db-storage";
+import { db } from "./db.js";
+import { DbStorage } from "./db-storage.js";
 
 export const storage: IStorage = db ? new DbStorage() : new MemStorage();

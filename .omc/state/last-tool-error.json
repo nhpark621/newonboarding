@@ -1,0 +1,7 @@
+{
+  "tool_name": "WebFetch",
+  "tool_input_preview": "{\"url\":\"https://newonboarding-rosy.vercel.app/api/recommend-services\",\"prompt\":\"이 API 엔드포인트가 응답하는지 확인해줘. 어떤 응답이 오는지 알려줘.\"}",
+  "error": "Request failed with status code 500",
+  "timestamp": "2026-03-22T04:17:05.553Z",
+  "retry_count": 1
+}

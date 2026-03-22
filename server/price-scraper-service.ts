@@ -1,4 +1,4 @@
-import { generateDomainCandidates, probeDomain } from "./brandstore-service";
+import { generateDomainCandidates, probeDomain } from "./brandstore-service.js";
 
 export interface DomainPrice {
   domain: "official" | "naver" | "coupang";

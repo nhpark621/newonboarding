@@ -1,4 +1,4 @@
-import { generateDomainCandidates, probeDomain, detectPlatform } from "./brandstore-service";
+import { generateDomainCandidates, probeDomain, detectPlatform } from "./brandstore-service.js";
 
 export interface DiscoveredProduct {
   name: string;

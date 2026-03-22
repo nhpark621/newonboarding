@@ -1,12 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertUserSchema, serviceRecommendationSchema, insertOnboardingSessionSchema } from "../shared/schema";
+import { storage } from "./storage.js";
+import { insertUserSchema, serviceRecommendationSchema, insertOnboardingSessionSchema } from "../shared/schema.js";
 import OpenAI from "openai";
-import { generateDomainCandidates, probeDomain, discoverEventRoutes, mockPickCompetitors, scoreEventRoute } from "./brandstore-service";
-import { discoverProducts } from "./price-monitor-service";
-import { fetchAllProductPrices } from "./price-scraper-service";
-import { discoverCompetitorEvents } from "./event-monitor-service";
+import { generateDomainCandidates, probeDomain, discoverEventRoutes, mockPickCompetitors, scoreEventRoute } from "./brandstore-service.js";
+import { discoverProducts } from "./price-monitor-service.js";
+import { fetchAllProductPrices } from "./price-scraper-service.js";
+import { discoverCompetitorEvents } from "./event-monitor-service.js";
 import { z } from "zod";
 
 const openai = new OpenAI({ 

@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { generateDomainCandidates, probeDomain, generateEventRoutes, detectPlatform } from "./brandstore-service";
+import { generateDomainCandidates, probeDomain, generateEventRoutes, detectPlatform } from "./brandstore-service.js";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key",

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx supabase:*)",
+      "WebFetch(domain:supabase.com)",
+      "Bash(git config:*)"
+    ]
+  }
+}

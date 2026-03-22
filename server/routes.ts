@@ -124,6 +124,34 @@ JSON 형태로 응답해주세요: { "recommended_competitors": ["경쟁사1", "
     }
   });
 
+  // Debug: test Naver access from this server
+  app.get("/api/debug/naver-test", async (_req, res) => {
+    try {
+      const testUrl = "https://search.naver.com/search.naver?query=" + encodeURIComponent("네스프레소 브랜드스토어");
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      const response = await fetch(testUrl, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept-Language": "ko-KR,ko;q=0.9",
+        },
+      });
+      clearTimeout(timeout);
+      const html = await response.text();
+      const brandMatches = html.match(/brand\.naver\.com\/[a-zA-Z0-9_-]+/g) || [];
+      res.json({
+        status: response.status,
+        htmlLength: html.length,
+        brandStoreUrls: Array.from(new Set(brandMatches)).slice(0, 5),
+        containsBrandStore: brandMatches.length > 0,
+        snippet: html.slice(0, 500),
+      });
+    } catch (error: any) {
+      res.json({ error: error?.message });
+    }
+  });
+
   // User registration endpoint
   app.post("/api/register", async (req, res) => {
     try {

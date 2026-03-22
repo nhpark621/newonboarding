@@ -109,13 +109,13 @@ async function findNaverBrandStore(competitorName: string): Promise<{ url: strin
 
   if (searchHtml) {
     // Find brand.naver.com or smartstore.naver.com URL with a valid slug
-    const brandRegex = /https?:\/\/(?:brand|smartstore)\.naver\.com\/([a-zA-Z][a-zA-Z0-9_-]{1,30})/g;
+    const brandRegex = /(?:https?:)?\/?\/?(?:brand|smartstore)\.naver\.com\/([a-zA-Z][a-zA-Z0-9_-]{1,30})/g;
     let match;
     while ((match = brandRegex.exec(searchHtml)) !== null) {
       const slug = match[1];
       // Skip generic/internal paths
       if (["search", "gate", "login", "help", "category", "best"].includes(slug)) continue;
-      brandStoreUrl = match[0];
+      brandStoreUrl = `https://brand.naver.com/${slug}`;
       break;
     }
   }

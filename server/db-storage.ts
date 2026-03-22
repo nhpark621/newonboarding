@@ -10,7 +10,7 @@ import {
   type MonitoredProduct, type InsertMonitoredProduct,
   type PriceRecord, type InsertPriceRecord,
   type DiscoveredEvent, type InsertDiscoveredEvent,
-} from "@shared/schema";
+} from "../shared/schema";
 import type { IStorage } from "./storage";
 
 export class DbStorage implements IStorage {

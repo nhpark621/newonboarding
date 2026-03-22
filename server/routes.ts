@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, serviceRecommendationSchema, insertOnboardingSessionSchema } from "@shared/schema";
+import { insertUserSchema, serviceRecommendationSchema, insertOnboardingSessionSchema } from "../shared/schema";
 import OpenAI from "openai";
 import { generateDomainCandidates, probeDomain, discoverEventRoutes, mockPickCompetitors, scoreEventRoute } from "./brandstore-service";
 import { discoverProducts } from "./price-monitor-service";

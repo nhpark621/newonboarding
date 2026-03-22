@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type OnboardingSession, type InsertOnboardingSession, type Channel, type InsertChannel, type EventPage, type InsertEventPage, type MonitoredProduct, type InsertMonitoredProduct, type PriceRecord, type InsertPriceRecord, type DiscoveredEvent, type InsertDiscoveredEvent } from "@shared/schema";
+import { type User, type InsertUser, type OnboardingSession, type InsertOnboardingSession, type Channel, type InsertChannel, type EventPage, type InsertEventPage, type MonitoredProduct, type InsertMonitoredProduct, type PriceRecord, type InsertPriceRecord, type DiscoveredEvent, type InsertDiscoveredEvent } from "../shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
